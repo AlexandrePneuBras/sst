@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 // Mantemos a logo apenas para a versão de celular (mobile)
 import LogoPneubras from '../PneuBras.jpeg';
-// Importação do seu novo plano de fundo!
+// Importação do seu novo plano de fundo com extensão minúscula corrigida
 import FundoInicial from '../planoinicial.png';
 
 interface LoginProps {
@@ -42,17 +42,42 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   return (
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
       
-      {/* Lado Esquerdo - Imagem de Fundo de Alta Qualidade (Oculto no Mobile) */}
-      <div 
-        className="hidden lg:block lg:w-[60%] xl:w-[65%] bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: `url(${FundoInicial})` }}
-      >
-        {/* Overlay ultra sutil apenas para integrar as bordas com o lado direito */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-slate-900/5 pointer-events-none"></div>
+      {/* Lado Esquerdo - Imagem de Fundo e Textos Restaurados (Oculto no Mobile) */}
+      <div className="hidden lg:flex lg:w-[55%] xl:w-[60%] relative flex-col justify-end bg-slate-900">
+        
+        {/* Imagem centralizada para perder o mínimo possível das laterais */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${FundoInicial})` }}
+        ></div>
+        
+        {/* Overlay em gradiente: escuro embaixo (para o texto) e transparente em cima (para a imagem) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent"></div>
+
+        {/* Textos importantes restaurados sobre o fundo escuro */}
+        <div className="relative z-10 p-10 xl:p-16 max-w-3xl">
+          <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-3">
+            Saúde, Segurança e Higiene Ocupacional
+          </p>
+          <h2 className="text-3xl xl:text-4xl font-extrabold leading-tight mb-4 text-white drop-shadow-md">
+            Padrão corporativo de excelência em <span className="text-emerald-500">segurança</span> e risco zero.
+          </h2>
+          <p className="text-slate-300 text-sm xl:text-base leading-relaxed mb-8 drop-shadow">
+            Bem-vindo ao Portal de SST integrado da PneuBras e Oficinas PneuDrive. Utilize suas credenciais
+            cadastradas na base colaboradora para relatar inspeções físicas, realizar treinamentos de
+            conformidade regulatória e acompanhar as metas internas.
+          </p>
+          
+          <div className="flex flex-wrap gap-x-6 gap-y-3 text-[10px] xl:text-xs text-slate-400 font-bold uppercase tracking-widest">
+            <span className="hover:text-emerald-400 transition-colors cursor-pointer">Portal Cliente PneuBras</span>
+            <span className="hover:text-emerald-400 transition-colors cursor-pointer">Acesso PneuDrive</span>
+            <span className="hover:text-emerald-400 transition-colors cursor-pointer">NR-06 Regulamentação</span>
+          </div>
+        </div>
       </div>
 
-      {/* Lado Direito - Formulário de Login (Mais Compacto) */}
-      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white flex flex-col justify-center p-6 sm:p-10 shadow-[-15px_0_30px_-10px_rgba(0,0,0,0.1)] z-10 relative">
+      {/* Lado Direito - Formulário de Login */}
+      <div className="w-full lg:w-[45%] xl:w-[40%] bg-white flex flex-col justify-center p-6 sm:p-10 shadow-[-20px_0_40px_-10px_rgba(0,0,0,0.1)] z-10 relative">
         <div className="w-full max-w-sm mx-auto">
           
           {/* Logo Mobile (Aparece apenas em telas pequenas) */}
@@ -70,7 +95,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             </p>
           </div>
 
-          {/* Toggle de Tipo de Acesso (Mais compacto) */}
+          {/* Toggle de Tipo de Acesso */}
           <div className="flex p-1 bg-slate-100/80 rounded-lg mb-6 border border-slate-200/80">
             <button
               type="button"
@@ -116,12 +141,18 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             </button>
           </form>
 
-          {/* Área de credenciais reduzida */}
+          {/* Área de credenciais */}
           <div className="mt-6 pt-5 border-t border-slate-100">
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Homologação</p>
             <div className="bg-slate-50/80 rounded-lg p-3 border border-slate-200/60 text-[10px] text-slate-600 space-y-2">
-              <p className="flex justify-between items-center"><span className="font-semibold text-slate-700">Colaborador</span> <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">alexandre.esc@gmail.com</span></p>
-              <p className="flex justify-between items-center"><span className="font-semibold text-slate-700">Gestor SST</span> <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">sst@pneubras.com.br</span></p>
+              <p className="flex justify-between items-center">
+                <span className="font-semibold text-slate-700">Colaborador</span> 
+                <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">alexandre.esc@gmail.com</span>
+              </p>
+              <p className="flex justify-between items-center">
+                <span className="font-semibold text-slate-700">Gestor SST</span> 
+                <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">sst@pneubras.com.br</span>
+              </p>
             </div>
           </div>
 
