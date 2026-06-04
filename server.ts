@@ -4,7 +4,7 @@ import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { Colaborador, Noticia, InspecaoForm, ConformidadeForm, PilulaTreinamento, QuizRespostum, AppConfig } from "./src/types";
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(process.cwd(), "server_db.json");
 
 // Helper structure for DB
@@ -527,7 +527,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
+  app.listen(PORT as number, "0.0.0.0", () => {
     console.log(`[SST Server] Servidor escutando na porta http://localhost:${PORT}`);
   });
 }
