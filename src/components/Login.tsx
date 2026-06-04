@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 // Mantemos a logo apenas para a versão de celular (mobile)
 import LogoPneubras from '../PneuBras.jpeg';
-// Importação do seu novo plano de fundo
+// Importação do seu plano de fundo
 import FundoInicial from '../planoinicial.png';
 
 interface LoginProps {
@@ -42,19 +42,19 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   return (
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
       
-      {/* Lado Esquerdo - Imagem de Fundo e Textos (Oculto no Mobile) */}
-      <div className="hidden lg:flex lg:w-[70%] xl:w-[75%] relative flex-col justify-end bg-slate-900">
+      {/* Lado Esquerdo - Ocupa todo o espaço restante (flex-1) */}
+      <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-slate-900">
         
-        {/* CORREÇÃO: Usando 'bg-left' para impedir que a logomarca seja cortada na esquerda */}
+        {/* Ajuste chave: bg-[position:15%_center] ancora o lado esquerdo para não cortar a logo, e deixa a direita livre para o texto */}
         <div 
-          className="absolute inset-0 bg-cover bg-left bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-[position:15%_center] bg-no-repeat"
           style={{ backgroundImage: `url(${FundoInicial})` }}
         ></div>
         
-        {/* Overlay em gradiente: escuro embaixo (para o texto) e transparente em cima */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent"></div>
+        {/* Overlay em gradiente: escuro embaixo (para os textos de rodapé) e transparente em cima */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/70 to-transparent pointer-events-none"></div>
 
-        {/* Textos importantes sobre o fundo escuro */}
+        {/* Textos de rodapé mantidos legíveis sobre o fundo escuro */}
         <div className="relative z-10 p-10 xl:p-14 max-w-3xl">
           <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-3">
             Saúde, Segurança e Higiene Ocupacional
@@ -76,8 +76,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         </div>
       </div>
 
-      {/* Lado Direito - Formulário de Login */}
-      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white flex flex-col justify-center p-6 sm:p-10 shadow-[-20px_0_40px_-10px_rgba(0,0,0,0.1)] z-10 relative">
+      {/* Lado Direito - Largura Fixa para não esmagar a imagem em telas grandes */}
+      <div className="w-full lg:w-[420px] xl:w-[460px] shrink-0 bg-white flex flex-col justify-center p-8 sm:p-10 shadow-[-20px_0_40px_-10px_rgba(0,0,0,0.15)] z-10 relative">
         <div className="w-full max-w-sm mx-auto">
           
           {/* Logo Mobile (Aparece apenas em telas pequenas) */}
@@ -87,20 +87,20 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             </div>
           </div>
 
-          <div className="mb-6">
-            <p className="text-[10px] font-bold text-emerald-600 tracking-widest uppercase mb-1">Acesso Restrito</p>
-            <h3 className="text-2xl font-extrabold text-slate-900">Autenticação</h3>
-            <p className="text-slate-500 mt-1.5 text-xs leading-relaxed">
+          <div className="mb-8">
+            <p className="text-[10px] font-bold text-emerald-600 tracking-widest uppercase mb-1.5">Acesso Restrito</p>
+            <h3 className="text-3xl font-extrabold text-slate-900">Autenticação</h3>
+            <p className="text-slate-500 mt-2 text-xs leading-relaxed">
               Informe suas credenciais para acessar os painéis operacionais e gerenciais de SST.
             </p>
           </div>
 
           {/* Toggle de Tipo de Acesso */}
-          <div className="flex p-1 bg-slate-100/80 rounded-lg mb-6 border border-slate-200/80">
+          <div className="flex p-1 bg-slate-100/80 rounded-lg mb-8 border border-slate-200/80">
             <button
               type="button"
               onClick={() => setIsAdmin(false)}
-              className={`flex-1 py-2 text-xs font-bold rounded-md transition-all duration-200 ${
+              className={`flex-1 py-2.5 text-xs font-bold rounded-md transition-all duration-200 ${
                 !isAdmin ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -109,7 +109,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             <button
               type="button"
               onClick={() => setIsAdmin(true)}
-              className={`flex-1 py-2 text-xs font-bold rounded-md transition-all duration-200 ${
+              className={`flex-1 py-2.5 text-xs font-bold rounded-md transition-all duration-200 ${
                 isAdmin ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
@@ -117,9 +117,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             </button>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+              <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">
                 E-mail Corporativo
               </label>
               <input
@@ -127,14 +127,14 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={isAdmin ? "admin@pneubras.com.br" : "seu.nome@pneubras.com.br"}
-                className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 text-sm font-medium placeholder-slate-400"
+                className="w-full px-5 py-3.5 bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 text-sm font-medium placeholder-slate-400"
                 required
               />
             </div>
             
             <button
               type="submit"
-              className="w-full bg-slate-900 text-white text-sm font-bold py-3 rounded-lg hover:bg-slate-800 active:scale-[0.98] transition-all flex justify-center items-center space-x-2 shadow-md hover:shadow-lg"
+              className="w-full bg-slate-900 text-white text-sm font-bold py-3.5 rounded-lg hover:bg-slate-800 active:scale-[0.98] transition-all flex justify-center items-center space-x-2 shadow-md hover:shadow-lg"
             >
               <span>Acessar Painel</span>
               <span aria-hidden="true">&rarr;</span>
@@ -142,16 +142,16 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           </form>
 
           {/* Área de credenciais */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Homologação</p>
-            <div className="bg-slate-50/80 rounded-lg p-3 border border-slate-200/60 text-[10px] text-slate-600 space-y-2">
+          <div className="mt-8 pt-6 border-t border-slate-100">
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">Homologação</p>
+            <div className="bg-slate-50/80 rounded-lg p-3 border border-slate-200/60 text-[10px] text-slate-600 space-y-2.5">
               <p className="flex justify-between items-center">
                 <span className="font-semibold text-slate-700">Colaborador</span> 
-                <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">alexandre.esc@gmail.com</span>
+                <span className="font-mono bg-white px-2 py-1 rounded border border-slate-200">alexandre.esc@gmail.com</span>
               </p>
               <p className="flex justify-between items-center">
                 <span className="font-semibold text-slate-700">Gestor SST</span> 
-                <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200">sst@pneubras.com.br</span>
+                <span className="font-mono bg-white px-2 py-1 rounded border border-slate-200">sst@pneubras.com.br</span>
               </p>
             </div>
           </div>
