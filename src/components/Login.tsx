@@ -43,7 +43,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
       
       {/* Lado Esquerdo - Imagem de Fundo e Textos (Oculto no Mobile) */}
-      <div className="hidden lg:flex lg:w-[60%] xl:w-[65%] relative flex-col justify-end bg-slate-900">
+      <div className="hidden lg:flex lg:w-[40%] xl:w-[55%] relative flex-col justify-end bg-slate-900">
         
         {/* CORREÇÃO: Usando 'bg-left' para impedir que a logomarca seja cortada na esquerda */}
         <div 
