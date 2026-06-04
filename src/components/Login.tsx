@@ -43,16 +43,17 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
       
       {/* Lado Esquerdo - Ocupa todo o espaço restante (flex-1) */}
-      <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-slate-900">
+      {/* Mudei o fundo para bg-slate-200 para combinar com a borda da sua arte caso sobre espaço */}
+      <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-slate-200">
         
-        {/* Ajuste chave: bg-[position:15%_center] ancora o lado esquerdo para não cortar a logo, e deixa a direita livre para o texto */}
+        {/* CORREÇÃO AQUI: bg-contain garante que 100% da imagem seja exibida sem cortes */}
         <div 
-          className="absolute inset-0 bg-cover bg-[position:15%_center] bg-no-repeat"
+          className="absolute inset-0 bg-contain bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${FundoInicial})` }}
         ></div>
         
         {/* Overlay em gradiente: escuro embaixo (para os textos de rodapé) e transparente em cima */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/70 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent pointer-events-none"></div>
 
         {/* Textos de rodapé mantidos legíveis sobre o fundo escuro */}
         <div className="relative z-10 p-10 xl:p-14 max-w-3xl">
@@ -62,13 +63,13 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           <h2 className="text-3xl xl:text-4xl font-extrabold leading-tight mb-4 text-white drop-shadow-md">
             Padrão corporativo de excelência em <span className="text-emerald-500">segurança</span> e risco zero.
           </h2>
-          <p className="text-slate-300 text-sm xl:text-base leading-relaxed mb-8 drop-shadow">
+          <p className="text-slate-200 text-sm xl:text-base leading-relaxed mb-8 drop-shadow">
             Bem-vindo ao Portal de SST integrado da PneuBras e Oficinas PneuDrive. Utilize suas credenciais
             cadastradas na base colaboradora para relatar inspeções físicas, realizar treinamentos de
             conformidade regulatória e acompanhar as metas internas.
           </p>
           
-          <div className="flex flex-wrap gap-x-6 gap-y-3 text-[10px] xl:text-xs text-slate-400 font-bold uppercase tracking-widest">
+          <div className="flex flex-wrap gap-x-6 gap-y-3 text-[10px] xl:text-xs text-slate-300 font-bold uppercase tracking-widest">
             <span className="hover:text-emerald-400 transition-colors cursor-pointer">Portal Cliente PneuBras</span>
             <span className="hover:text-emerald-400 transition-colors cursor-pointer">Acesso PneuDrive</span>
             <span className="hover:text-emerald-400 transition-colors cursor-pointer">NR-06 Regulamentação</span>
