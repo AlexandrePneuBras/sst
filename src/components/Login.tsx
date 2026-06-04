@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 // Mantemos a logo apenas para a versão de celular (mobile)
 import LogoPneubras from '../PneuBras.jpeg';
-// Importação do seu novo plano de fundo com extensão minúscula corrigida
+// Importação do seu novo plano de fundo
 import FundoInicial from '../planoinicial.png';
 
 interface LoginProps {
@@ -42,20 +42,20 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   return (
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
       
-      {/* Lado Esquerdo - Imagem de Fundo e Textos Restaurados (Oculto no Mobile) */}
-      <div className="hidden lg:flex lg:w-[55%] xl:w-[60%] relative flex-col justify-end bg-slate-900">
+      {/* Lado Esquerdo - Imagem de Fundo e Textos (Oculto no Mobile) */}
+      <div className="hidden lg:flex lg:w-[60%] xl:w-[65%] relative flex-col justify-end bg-slate-900">
         
-        {/* Imagem centralizada para perder o mínimo possível das laterais */}
+        {/* CORREÇÃO: Usando 'bg-left' para impedir que a logomarca seja cortada na esquerda */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-left bg-no-repeat"
           style={{ backgroundImage: `url(${FundoInicial})` }}
         ></div>
         
-        {/* Overlay em gradiente: escuro embaixo (para o texto) e transparente em cima (para a imagem) */}
+        {/* Overlay em gradiente: escuro embaixo (para o texto) e transparente em cima */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/80 to-transparent"></div>
 
-        {/* Textos importantes restaurados sobre o fundo escuro */}
-        <div className="relative z-10 p-10 xl:p-16 max-w-3xl">
+        {/* Textos importantes sobre o fundo escuro */}
+        <div className="relative z-10 p-10 xl:p-14 max-w-3xl">
           <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-3">
             Saúde, Segurança e Higiene Ocupacional
           </p>
@@ -77,7 +77,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       </div>
 
       {/* Lado Direito - Formulário de Login */}
-      <div className="w-full lg:w-[45%] xl:w-[40%] bg-white flex flex-col justify-center p-6 sm:p-10 shadow-[-20px_0_40px_-10px_rgba(0,0,0,0.1)] z-10 relative">
+      <div className="w-full lg:w-[40%] xl:w-[35%] bg-white flex flex-col justify-center p-6 sm:p-10 shadow-[-20px_0_40px_-10px_rgba(0,0,0,0.1)] z-10 relative">
         <div className="w-full max-w-sm mx-auto">
           
           {/* Logo Mobile (Aparece apenas em telas pequenas) */}
