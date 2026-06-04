@@ -13,7 +13,7 @@ import ConformidadeFormulario from './components/ConformidadeFormulario';
 import GestaoAcessos from './components/GestaoAcessos';
 import ColaboradorHome from './components/ColaboradorHome';
 
-// Importação da nova logomarca horizontal
+// Importação da nova logomarca atualizada
 import LogoPneubras from './PneuBras.jpeg';
 
 export default function App() {
