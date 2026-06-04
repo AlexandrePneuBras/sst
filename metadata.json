@@ -1,0 +1,6 @@
+{
+  "name": "Portal de SST PneuBras",
+  "description": "Portal completo de SST para inspeções, conformidades, notícias de SSMA e pílulas de conhecimento.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

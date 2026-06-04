@@ -1,0 +1,21 @@
+{
+  "colaboradores": [
+    {
+      "id": "1",
+      "nome": "Alexandre Crego",
+      "email": "alexandrencrego@gmail.com",
+      "loja": "Matriz",
+      "empresa": "PneuBras - Matriz",
+      "status": "Ativo"
+    },
+    {
+      "id": "2b",
+      "nome": "Admin PneuBras",
+      "email": "admin@pneubras.com.br",
+      "loja": "Matriz Geral",
+      "empresa": "PneuBras - Matriz",
+      "status": "Ativo",
+      "role": "admin"
+    }
+  ]
+}
