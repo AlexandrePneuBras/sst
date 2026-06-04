@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 
-// Ajuste o caminho da imagem conforme a estrutura do seu projeto
-import pneuBrasLogo from '../PneuBras.png'; 
+// Caminho corrigido: volta uma pasta (..) saindo de 'components' para 'src'
+import LogoPneubras from '../PneuBras.jpeg';
 
 interface LoginProps {
   onLoginSuccess: (user: any) => void;
@@ -14,10 +13,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulação de lógica de login
-    // Adapte esta parte para sua autenticação real
+    
     if (isAdmin) {
-      if (email === 'sst@pneubras.com.br') { // Senha não é mais necessária aqui
+      if (email === 'sst@pneubras.com.br') { 
         onLoginSuccess({
           nome: 'Administrador SST',
           email: 'sst@pneubras.com.br',
@@ -29,7 +27,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     } else {
       if (email === 'alexandre.esc@gmail.com') {
         onLoginSuccess({
-          nome: 'Alexandre Esc.',
+          nome: 'Alexandre Rêgo',
           email: 'alexandre.esc@gmail.com',
           isAdmin: false,
         });
@@ -40,94 +38,113 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   };
 
   return (
-    <div className="flex h-screen bg-[#0E1A2B]">
-      {/* Lado Esquerdo - Informações */}
-      <div className="w-1/2 text-white p-12 flex flex-col justify-between">
-        <div>
-        <div className="flex items-center mb-2">
-            <img src={pneuBrasLogo} alt="PneuBras Logo" className="h-10 w-10 mr-3" />
+    <div className="flex h-screen bg-slate-950 font-sans">
+      {/* Lado Esquerdo - Informações e Branding (Oculto no Mobile) */}
+      <div className="hidden lg:flex w-1/2 text-white p-16 flex-col justify-between relative overflow-hidden bg-[#0B1120] border-r border-slate-800">
+        
+        {/* Efeito de luz sutil no fundo */}
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-900/10 to-transparent pointer-events-none"></div>
+        
+        <div className="relative z-10">
+          <div className="flex items-center mb-10">
+            {/* Container branco para dar contraste à logomarca escura */}
+            <div className="bg-white px-4 py-2 rounded-xl shadow-lg mr-5">
+              <img src={LogoPneubras} alt="PneuBras Logo" className="h-10 w-auto object-contain" />
+            </div>
             <div>
-              <h1 className="text-xl font-bold">PneuBras</h1>
-              <p className="text-sm">SST PORTAL</p>
+              <h1 className="text-xl font-extrabold tracking-tight">Portal Integrado</h1>
+              <p className="text-[10px] text-emerald-500 font-bold tracking-widest mt-0.5">SST CORPORATIVO</p>
             </div>
           </div>
-          <p className="text-xs text-gray-400 mb-12">SAÚDE, SEGURANÇA E HIGIENE OCUPACIONAL</p>
-          <h2 className="text-4xl font-bold leading-tight mb-4">
-            Padrão corporativo de excelência em segurança e risco zero.
+          
+          <h2 className="text-4xl lg:text-5xl font-extrabold leading-tight mb-6 text-slate-100">
+            Padrão de excelência em <span className="text-emerald-500">segurança</span> e risco zero.
           </h2>
-          <p className="text-gray-300">
-            Bem-vindo ao Portal de SST integrado da PneuBras e Oficinas PneuDrive. Utilize suas credenciais
-            cadastradas na base colaboradora para relatar inspeções físicas, realizar treinamentos de
-            conformidade regulatória nas filiais e acompanhar as metas internas.
+          <p className="text-slate-400 text-lg leading-relaxed max-w-xl">
+            Bem-vindo ao ambiente seguro da PneuBras e PneuDrive. Centralize suas inspeções, formulários de conformidade regulatória e métricas de desempenho em um único lugar.
           </p>
         </div>
-        <div className="text-xs text-gray-500">
-          <a href="#" className="hover:text-white mr-4">PORTAL-CLIENTE-PNEUBRAS</a>
-          <a href="#" className="hover:text-white mr-4">ACESSO-OFICINAS-PNEUDRIVE</a>
-          <a href="#" className="hover:text-white">NR-06-REGULAMENTAÇÃO</a>
+
+        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex space-x-6 relative z-10">
+          <span className="hover:text-emerald-400 transition-colors cursor-pointer">Portal Cliente</span>
+          <span className="hover:text-emerald-400 transition-colors cursor-pointer">Oficinas PneuDrive</span>
+          <span className="hover:text-emerald-400 transition-colors cursor-pointer">Diretrizes NRs</span>
         </div>
       </div>
 
       {/* Lado Direito - Formulário de Login */}
-      <div className="w-1/2 bg-white flex items-center justify-center p-12">
-        <div className="w-full max-w-md">
-          <p className="text-sm font-semibold text-green-600">SST CORPORATIVO</p>
-          <h3 className="text-2xl font-bold mt-2">Autenticação de Usuário</h3>
-          <p className="text-gray-500 mt-1 mb-6">
-            Informe suas credenciais para acessar os formulários técnicos ou painel executivo de indicadores.
-          </p>
+      <div className="w-full lg:w-1/2 bg-slate-50 flex items-center justify-center p-8 sm:p-12 relative">
+        <div className="w-full max-w-md bg-white p-8 sm:p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200/60">
+          
+          {/* Logo Mobile (Aparece apenas em telas pequenas) */}
+          <div className="lg:hidden flex justify-center mb-8">
+            <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100">
+              <img src={LogoPneubras} alt="PneuBras Logo" className="h-12 w-auto object-contain" />
+            </div>
+          </div>
 
-          <div className="flex border-b mb-6">
+          <div className="mb-8">
+            <p className="text-[11px] font-bold text-emerald-600 tracking-widest uppercase mb-1">Acesso Restrito</p>
+            <h3 className="text-3xl font-extrabold text-slate-900">Autenticação</h3>
+            <p className="text-slate-500 mt-2 text-sm leading-relaxed">
+              Informe suas credenciais para acessar os painéis operacionais e gerenciais de SST.
+            </p>
+          </div>
+
+          {/* Toggle de Tipo de Acesso */}
+          <div className="flex p-1 bg-slate-100/80 rounded-xl mb-8 border border-slate-200/80">
             <button
+              type="button"
               onClick={() => setIsAdmin(false)}
-              className={`py-2 px-4 text-sm font-medium ${
-                !isAdmin ? 'border-b-2 border-black text-black' : 'text-gray-500'
+              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 ${
+                !isAdmin ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              Acesso Colaborador
+              Colaborador
             </button>
             <button
+              type="button"
               onClick={() => setIsAdmin(true)}
-              className={`py-2 px-4 text-sm font-medium ${
-                isAdmin ? 'border-b-2 border-black text-black' : 'text-gray-500'
+              className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all duration-200 ${
+                isAdmin ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              Modo Administrador
+              Administrador
             </button>
           </div>
 
-          <form onSubmit={handleLogin}>
-            <div className="mb-4">
-              <label className="block text-xs font-bold text-gray-600 mb-2">
-                E-MAIL CORPORATIVO DO {isAdmin ? 'ADMINISTRADOR' : 'COLABORADOR'}
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2">
+                E-mail Corporativo
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu.nome@pneubras.com.br / @pneudrive..."
-                className="w-full px-4 py-3 bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder={isAdmin ? "admin@pneubras.com.br" : "seu.nome@pneubras.com.br"}
+                className="w-full px-5 py-3.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-slate-800 font-medium placeholder-slate-400"
+                required
               />
-              <p className="text-xs text-gray-400 mt-1">
-                Acesso garantido para {isAdmin ? 'administradores' : 'colaboradores'} cadastrados na base.
-              </p>
             </div>
             
-            {/* O campo de senha foi removido conforme a imagem */}
-
             <button
               type="submit"
-              className="w-full bg-black text-white font-bold py-3 rounded-md hover:bg-gray-800 transition-colors"
+              className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 active:scale-[0.98] transition-all flex justify-center items-center space-x-2 shadow-md hover:shadow-lg"
             >
-              Entrar como {isAdmin ? 'Administrador' : 'Colaborador'} &rarr;
+              <span>Acessar Painel</span>
+              <span aria-hidden="true">&rarr;</span>
             </button>
           </form>
 
-          <div className="mt-6 border rounded-md p-4 text-xs text-gray-600">
-            <p className="font-bold mb-2">CREDENCIAS DE DEMONSTRAÇÃO / HOMOLOGAÇÃO:</p>
-            <p>- Colaborador ativo (Matriz): alexandre.esc@gmail.com</p>
-            <p>- Administrador: sst@pneubras.com.br / senha: admin</p>
+          <div className="mt-8 pt-6 border-t border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Credenciais de Demonstração</p>
+            <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-200/60 text-xs text-slate-600 space-y-2">
+              <p className="flex justify-between items-center"><span className="font-semibold text-slate-700">Colaborador</span> <span className="font-mono text-[11px] bg-white px-2 py-1 rounded border border-slate-200">alexandre.esc@gmail.com</span></p>
+              <p className="flex justify-between items-center"><span className="font-semibold text-slate-700">Gestor SST</span> <span className="font-mono text-[11px] bg-white px-2 py-1 rounded border border-slate-200">sst@pneubras.com.br</span></p>
+            </div>
           </div>
+
         </div>
       </div>
     </div>
