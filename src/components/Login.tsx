@@ -42,20 +42,23 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   return (
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
       
-      {/* Lado Esquerdo - Ocupa todo o espaço restante (flex-1) */}
-      {/* Mudei o fundo para bg-slate-200 para combinar com a borda da sua arte caso sobre espaço */}
-      <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-slate-200">
+      {/* Lado Esquerdo - Ocupa todo o espaço restante */}
+      {/* Fundo ajustado para a cor base do topo do seu vidro (cinza/azul claro) */}
+      <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-[#d1d9e0]">
         
-        {/* CORREÇÃO AQUI: bg-contain garante que 100% da imagem seja exibida sem cortes */}
+        {/* Imagem intacta */}
         <div 
           className="absolute inset-0 bg-contain bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${FundoInicial})` }}
         ></div>
         
-        {/* Overlay em gradiente: escuro embaixo (para os textos de rodapé) e transparente em cima */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent pointer-events-none"></div>
+        {/* NOVO: Gradiente superior esfumado para apagar a linha de corte da arte */}
+        <div className="absolute top-0 left-0 w-full h-[20%] bg-gradient-to-b from-[#d1d9e0] via-[#d1d9e0]/80 to-transparent pointer-events-none z-0"></div>
+        
+        {/* Gradiente escuro inferior para dar leitura aos textos */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/70 to-transparent pointer-events-none z-0"></div>
 
-        {/* Textos de rodapé mantidos legíveis sobre o fundo escuro */}
+        {/* Textos de rodapé */}
         <div className="relative z-10 p-10 xl:p-14 max-w-3xl">
           <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest mb-3">
             Saúde, Segurança e Higiene Ocupacional
@@ -63,13 +66,13 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           <h2 className="text-3xl xl:text-4xl font-extrabold leading-tight mb-4 text-white drop-shadow-md">
             Padrão corporativo de excelência em <span className="text-emerald-500">segurança</span> e risco zero.
           </h2>
-          <p className="text-slate-200 text-sm xl:text-base leading-relaxed mb-8 drop-shadow">
+          <p className="text-slate-300 text-sm xl:text-base leading-relaxed mb-8 drop-shadow">
             Bem-vindo ao Portal de SST integrado da PneuBras e Oficinas PneuDrive. Utilize suas credenciais
             cadastradas na base colaboradora para relatar inspeções físicas, realizar treinamentos de
             conformidade regulatória e acompanhar as metas internas.
           </p>
           
-          <div className="flex flex-wrap gap-x-6 gap-y-3 text-[10px] xl:text-xs text-slate-300 font-bold uppercase tracking-widest">
+          <div className="flex flex-wrap gap-x-6 gap-y-3 text-[10px] xl:text-xs text-slate-400 font-bold uppercase tracking-widest">
             <span className="hover:text-emerald-400 transition-colors cursor-pointer">Portal Cliente PneuBras</span>
             <span className="hover:text-emerald-400 transition-colors cursor-pointer">Acesso PneuDrive</span>
             <span className="hover:text-emerald-400 transition-colors cursor-pointer">NR-06 Regulamentação</span>
@@ -77,11 +80,11 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         </div>
       </div>
 
-      {/* Lado Direito - Largura Fixa para não esmagar a imagem em telas grandes */}
+      {/* Lado Direito - Largura Fixa */}
       <div className="w-full lg:w-[420px] xl:w-[460px] shrink-0 bg-white flex flex-col justify-center p-8 sm:p-10 shadow-[-20px_0_40px_-10px_rgba(0,0,0,0.15)] z-10 relative">
         <div className="w-full max-w-sm mx-auto">
           
-          {/* Logo Mobile (Aparece apenas em telas pequenas) */}
+          {/* Logo Mobile */}
           <div className="lg:hidden flex justify-center mb-8">
             <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100">
               <img src={LogoPneubras} alt="PneuBras Logo" className="h-10 w-auto object-contain" />
