@@ -43,8 +43,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
       
       {/* Lado Esquerdo - Ocupa todo o espaço restante */}
-      {/* Fundo ajustado para a cor base do topo do seu vidro (cinza/azul claro) */}
-      <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-[#d1d9e0]">
+      {/* Fundo ajustado para a nova cor HEX #2596be */}
+      <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-[#2596be]">
         
         {/* Imagem intacta */}
         <div 
@@ -52,8 +52,8 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           style={{ backgroundImage: `url(${FundoInicial})` }}
         ></div>
         
-        {/* NOVO: Gradiente superior esfumado para apagar a linha de corte da arte */}
-        <div className="absolute top-0 left-0 w-full h-[20%] bg-gradient-to-b from-[#d1d9e0] via-[#d1d9e0]/80 to-transparent pointer-events-none z-0"></div>
+        {/* Gradiente superior esfumado usando a nova cor para apagar a linha de corte da arte */}
+        <div className="absolute top-0 left-0 w-full h-[20%] bg-gradient-to-b from-[#2596be] via-[#2596be]/80 to-transparent pointer-events-none z-0"></div>
         
         {/* Gradiente escuro inferior para dar leitura aos textos */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/70 to-transparent pointer-events-none z-0"></div>
@@ -66,13 +66,13 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           <h2 className="text-3xl xl:text-4xl font-extrabold leading-tight mb-4 text-white drop-shadow-md">
             Padrão corporativo de excelência em <span className="text-emerald-500">segurança</span> e risco zero.
           </h2>
-          <p className="text-slate-300 text-sm xl:text-base leading-relaxed mb-8 drop-shadow">
+          <p className="text-slate-200 text-sm xl:text-base leading-relaxed mb-8 drop-shadow">
             Bem-vindo ao Portal de SST integrado da PneuBras e Oficinas PneuDrive. Utilize suas credenciais
             cadastradas na base colaboradora para relatar inspeções físicas, realizar treinamentos de
             conformidade regulatória e acompanhar as metas internas.
           </p>
           
-          <div className="flex flex-wrap gap-x-6 gap-y-3 text-[10px] xl:text-xs text-slate-400 font-bold uppercase tracking-widest">
+          <div className="flex flex-wrap gap-x-6 gap-y-3 text-[10px] xl:text-xs text-slate-300 font-bold uppercase tracking-widest">
             <span className="hover:text-emerald-400 transition-colors cursor-pointer">Portal Cliente PneuBras</span>
             <span className="hover:text-emerald-400 transition-colors cursor-pointer">Acesso PneuDrive</span>
             <span className="hover:text-emerald-400 transition-colors cursor-pointer">NR-06 Regulamentação</span>
