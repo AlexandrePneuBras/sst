@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Newspaper, Video, HelpCircle, FileSpreadsheet, Lock, AlertOctagon, HelpCircle as HelpIcon, CheckCircle, ExternalLink, BookmarkCheck, ArrowRight } from 'lucide-react';
+import { Newspaper, Video, HelpCircle, FileSpreadsheet, Lock, AlertOctagon, HelpCircle as HelpIcon, CheckCircle, ExternalLink, BookmarkCheck, ArrowRight, ArrowLeft, LayoutGrid } from 'lucide-react';
 import { Noticia, PilulaTreinamento, QuizRespostum } from '../types';
 
 interface ColaboradorHomeProps {
@@ -17,7 +17,8 @@ export default function ColaboradorHome({
   respostasQuiz,
   onSubmitQuiz
 }: ColaboradorHomeProps) {
-  const [activeSubView, setActiveSubView] = useState<'noticias' | 'formularios' | 'dialogos'>('noticias');
+  // Alterado: Novo estado 'menu' adicionado e definido como padrão
+  const [activeSubView, setActiveSubView] = useState<'menu' | 'noticias' | 'formularios' | 'dialogos'>('menu');
   
   // Quiz states
   const [activeQuizPill, setActiveQuizPill] = useState<PilulaTreinamento | null>(null);
@@ -29,9 +30,6 @@ export default function ColaboradorHome({
   const [formSubmitted, setFormSubmitted] = useState(false);
   
   // Decide which layout matches current user
-  // Layout Tipo 01 - Filial de Serviços: PneuDrive - Serviços
-  // Layout Tipo 02 - Filial Administrativa | Vendas: PneuBras - Vendas / PneuBras - Administrativo
-  // Layout Tipo 03 - Matriz: PneuBras - Matriz
   const getUserAuthorizedLayout = () => {
     if (user?.empresa === 'PneuDrive - Serviços') return 'tipo1';
     if (user?.empresa === 'PneuBras - Vendas' || user?.empresa === 'PneuBras - Administrativo') return 'tipo2';
@@ -106,43 +104,75 @@ export default function ColaboradorHome({
         </div>
       </div>
 
-      {/* Internal Navigation tabs */}
-      <div className="border-b border-slate-200 flex flex-wrap gap-1">
+      {/* Botão de Voltar (Aparece apenas quando não estamos no menu principal) */}
+      {activeSubView !== 'menu' && (
         <button
-          onClick={() => { setActiveSubView('noticias'); setActiveFormLayout(null); }}
-          className={`px-4 py-2 border-b-2 text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-            activeSubView === 'noticias' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
+          onClick={() => { setActiveSubView('menu'); setActiveFormLayout(null); }}
+          className="flex items-center text-slate-500 hover:text-slate-900 text-xs font-bold transition-colors mb-2 cursor-pointer w-fit"
         >
-          <Newspaper className="w-4 h-4" />
-          <span>Home - Notícias SST</span>
+          <ArrowLeft className="w-4 h-4 mr-1.5" />
+          Voltar ao Menu Principal
         </button>
+      )}
 
-        <button
-          onClick={() => { setActiveSubView('formularios'); }}
-          className={`px-4 py-2 border-b-2 text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-            activeSubView === 'formularios' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <FileSpreadsheet className="w-4 h-4" />
-          <span>Formulários Comportamentais</span>
-        </button>
-
-        <button
-          onClick={() => { setActiveSubView('dialogos'); setActiveFormLayout(null); }}
-          className={`px-4 py-2 border-b-2 text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-            activeSubView === 'dialogos' ? 'border-blue-600 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-900'
-          }`}
-        >
-          <Video className="w-4 h-4" />
-          <span>Diálogos de SST (Treinamento)</span>
-        </button>
-      </div>
-
-      {/* 1. NOTÍCIAS SST SECTION (Edge horizontal stream representation) */}
-      {activeSubView === 'noticias' && (
+      {/* 0. MENU PRINCIPAL (HOME DASHBOARD) */}
+      {activeSubView === 'menu' && (
         <div className="space-y-6">
           <div>
+            <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wide flex items-center gap-2">
+              <LayoutGrid className="w-4 h-4" />
+              Menu de Acesso Rápido
+            </h2>
+            <p className="text-xs text-slate-400">Selecione um dos módulos abaixo para acessar os conteúdos de SSMA.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <button 
+              onClick={() => setActiveSubView('noticias')}
+              className="bg-white p-6 rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all text-left flex flex-col gap-4 group cursor-pointer"
+            >
+              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Newspaper className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-base">Notícias SST</h3>
+                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">Canal de conscientização permanente sobre segurança, saúde ocupacional e normas.</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => setActiveSubView('formularios')}
+              className="bg-white p-6 rounded-xl border border-slate-200 hover:border-emerald-400 hover:shadow-md transition-all text-left flex flex-col gap-4 group cursor-pointer"
+            >
+              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <FileSpreadsheet className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-base">Formulários Comportamentais</h3>
+                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">Coleções de checks de comportamento e proteção específicos para sua unidade.</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => setActiveSubView('dialogos')}
+              className="bg-white p-6 rounded-xl border border-slate-200 hover:border-purple-400 hover:shadow-md transition-all text-left flex flex-col gap-4 group cursor-pointer"
+            >
+              <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Video className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-base">Diálogos de SST</h3>
+                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">Assista aos vídeos educativos de treinamento e responda aos questionários de validação.</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 1. NOTÍCIAS SST SECTION */}
+      {activeSubView === 'noticias' && (
+        <div className="space-y-6">
+          <div className="border-b border-slate-200 pb-2">
             <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Notícias de SSMA / Prevenção em Tempo Real</h2>
             <p className="text-xs text-slate-400">Canal de conscientização permanente sobre segurança, saúde ocupacional e NR-Portarias</p>
           </div>
@@ -201,7 +231,7 @@ export default function ColaboradorHome({
         <div className="space-y-6">
           {activeFormLayout === null ? (
             <div className="space-y-4">
-              <div>
+              <div className="border-b border-slate-200 pb-2">
                 <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Formulários de SST e Coleta de Informações</h3>
                 <p className="text-xs text-slate-400">Coleções de checks de comportamento e proteção. O seu acesso é limitado de acordo com a empresa cadastrada.</p>
               </div>
@@ -291,7 +321,6 @@ export default function ColaboradorHome({
           ) : (
             /* Mocked Google Forms layout according to layout rules */
             <div className="bg-[#FAF9F6] rounded-xl border border-slate-200 overflow-hidden shadow-sm max-w-2xl mx-auto font-sans">
-              {/* Slate clean Header flag banner */}
               <div className="h-4 bg-slate-800" />
               
               <div className="p-6 space-y-6">
@@ -410,7 +439,7 @@ export default function ColaboradorHome({
       {/* 3. DIÁLOGOS DE SST - TRAINING PILLS AND QUIZ WITH DATES Trava / Lock check */}
       {activeSubView === 'dialogos' && (
         <div className="space-y-6">
-          <div>
+          <div className="border-b border-slate-200 pb-2">
             <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Diálogos de SST (Treinamento &amp; Pílulas de Conhecimento)</h2>
             <p className="text-xs text-slate-400">Assista aos vídeos educativos de SSMA regulamentados e responda aos questionários de validação para afastar pendências corporativas.</p>
           </div>
