@@ -51,10 +51,9 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
   const [inspetor, setInspetor] = useState(user?.nome || '');
   const [data, setData] = useState(new Date().toISOString().split('T')[0]);
   
-  // NOVO: Estado para armazenar o e-mail de destino escolhido na hora
+  // Estado para armazenar o e-mail de destino escolhido pelo Gestor
   const [emailDestino, setEmailDestino] = useState(user?.email || '');
   
-  // Respostas state
   const [respostas, setRespostas] = useState<{
     [perguntaId: number]: {
       status: 'Conforme' | 'Não Conforme' | 'Outros';
@@ -134,14 +133,13 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     setTimeout(() => setNotificacao(null), 5000);
   };
 
-  // Submit Flow com verificação do email e CORS bypass
+  // Disparo para o Webhook com geração de PDF
   const handleSubmit = async (enviarEmail: boolean, enviarGDrive: boolean) => {
     if (!unidade.trim()) {
       triggerNotification('erro', 'Por favor, informe a Unidade/Loja.');
       return;
     }
 
-    // Trava de segurança: impede o envio se o e-mail não for preenchido
     if (enviarEmail && !emailDestino.trim()) {
       triggerNotification('erro', 'Por favor, informe o e-mail de destino.');
       return;
@@ -150,8 +148,12 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     setLoading(true);
     try {
       const mappedRespostas: any = {};
+      
+      // Associa o texto da pergunta à resposta para o PDF ser gerado bonito lá no Google
       Object.keys(respostas).forEach((key: any) => {
+        const questionData = QUESTIONS.find(q => q.id.toString() === key.toString());
         mappedRespostas[key] = {
+          pergunta: questionData ? questionData.texto : `Pergunta ${key}`,
           status: respostas[key].status,
           observacoes: respostas[key].observacoes,
           fotos: respostas[key].fotos.map((f: any) => f.url) 
@@ -166,16 +168,16 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         respostas: mappedRespostas,
         enviarEmail,
         enviarGDrive,
-        emailDestino: emailDestino, // Aqui o sistema puxa o e-mail digitado no input
+        emailDestino: emailDestino, 
         pastaDestinoUrl: config.gdriveFormsFolderUrl
       };
 
-      // SUBSTITUA POR SUA URL DO GOOGLE APPS SCRIPT
+      // COLE AQUI A URL DO SEU GOOGLE APPS SCRIPT
       const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec';
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Contorna o bloqueio de CORS
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Importante para evitar erro de CORS
         body: JSON.stringify(payload)
       });
 
@@ -183,13 +185,13 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         throw new Error('Falha na resposta do webhook');
       }
 
-      let msg = "Formulário de Inspeção salvo com sucesso!";
+      let msg = "Relatório de Inspeção processado com sucesso!";
       if (enviarEmail && enviarGDrive) {
-        msg = `Inspeção salva! Enviado e-mail para ${emailDestino} e arquivado no GDrive.`;
+        msg = `Inspeção salva! PDF gerado e enviado por e-mail para ${emailDestino} e arquivado no GDrive.`;
       } else if (enviarEmail) {
-        msg = `Inspeção salva! E-mail enviado com sucesso para ${emailDestino}.`;
+        msg = `Inspeção salva! PDF gerado e enviado com sucesso para ${emailDestino}.`;
       } else if (enviarGDrive) {
-        msg = `Inspeção salva! Registrada e arquivada legalmente no GDrive.`;
+        msg = `Inspeção salva! PDF oficial gerado e arquivado no GDrive.`;
       }
       
       triggerNotification('sucesso', msg);
@@ -201,7 +203,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     }
   };
 
-  // Printable view toggle for clean PDF compilation
   const handlePrint = () => {
     if (!unidade.trim()) {
       triggerNotification('erro', 'Por favor, preencha a Loja primeiro para gerar um relatório estruturado.');
@@ -216,21 +217,15 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-1 font-sans" id="full-inspecao-container">
-      {/* Visual notification bar */}
       {notificacao && (
         <div className={`p-4 rounded-lg flex items-center shadow-sm animate-fade-in text-xs ${
           notificacao.tipo === 'sucesso' ? 'bg-emerald-50 text-emerald-800 border-l-4 border-emerald-500 font-medium' : 'bg-rose-50 text-rose-800 border-l-4 border-rose-500 font-medium'
         }`}>
-          {notificacao.tipo === 'sucesso' ? (
-            <CheckCircle className="w-4 h-4 mr-2 flex-shrink-0 text-emerald-600" />
-          ) : (
-            <AlertTriangle className="w-4 h-4 mr-2 flex-shrink-0 text-rose-650" />
-          )}
+          {notificacao.tipo === 'sucesso' ? <CheckCircle className="w-4 h-4 mr-2 flex-shrink-0 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 mr-2 flex-shrink-0 text-rose-650" />}
           <span>{notificacao.msg}</span>
         </div>
       )}
 
-      {/* Header card */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
         <div className="flex items-center space-x-4">
           <div className="p-3 bg-slate-50 text-slate-700 border border-slate-200 rounded-lg">
@@ -279,7 +274,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         </div>
       </div>
 
-      {/* Questions Stack */}
       <div className="space-y-6">
         {QUESTIONS.map((q, qIndex) => {
           const resp = respostas[q.id];
@@ -296,7 +290,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                 </div>
               </div>
 
-              {/* Status Radio Elements */}
               <div className="flex flex-wrap gap-2 pt-1">
                 {(['Conforme', 'Não Conforme', 'Outros'] as const).map(status => {
                   const isActive = resp.status === status;
@@ -323,7 +316,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                 })}
               </div>
 
-              {/* Comments Field */}
               <div className="space-y-1">
                 <input
                   type="text"
@@ -335,7 +327,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                 />
               </div>
 
-              {/* Photo Upload Panel */}
               <div className="pt-2 space-y-2">
                 <span className="block text-[10px] font-bold text-slate-400 uppercase flex items-center">
                   <FileUp className="w-3.5 h-3.5 mr-1 text-slate-400" />
@@ -343,7 +334,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                 </span>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
-                  {/* File Slots */}
                   {resp.fotos.map((foto, fIdx) => (
                     <div key={fIdx} className="relative aspect-square border border-slate-200 rounded overflow-hidden group">
                       <img src={foto.url} alt={foto.name} className="w-full h-full object-cover" />
@@ -354,24 +344,14 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                       >
                         <Trash2 className="w-4 h-4 text-rose-400" />
                       </button>
-                      <div className="absolute bottom-1 left-1 right-1 truncate text-[8px] text-white bg-slate-900/40 px-1 rounded text-center">
-                        FOTO {fIdx + 1}
-                      </div>
                     </div>
                   ))}
 
-                  {/* Add Slot if < 5 */}
                   {resp.fotos.length < 5 && (
                     <label className="aspect-square border border-dashed border-slate-200 rounded-lg hover:border-slate-400 flex flex-col items-center justify-center cursor-pointer transition-colors p-2 text-center group">
                       <Plus className="w-5 h-5 text-slate-400 group-hover:text-slate-650 mb-1" />
                       <span className="text-[10px] text-slate-400 font-bold group-hover:text-slate-650">ANEXAR FOTO</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={(e) => handleFileUpload(q.id, e)}
-                        className="hidden"
-                      />
+                      <input type="file" accept="image/*" multiple onChange={(e) => handleFileUpload(q.id, e)} className="hidden" />
                     </label>
                   )}
                 </div>
@@ -381,7 +361,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         })}
       </div>
 
-      {/* Action buttons list com Input Dinâmico de E-mail */}
       <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col gap-5">
         <div className="text-xs text-slate-400 leading-normal">
           <p className="font-bold text-slate-500 uppercase tracking-wide">Opções Legais e Execução Técnica</p>
@@ -389,8 +368,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         </div>
 
         <div className="flex flex-col md:flex-row items-end justify-between gap-4 pt-4 border-t border-slate-100">
-          
-          {/* Campo para o Gestor inserir o e-mail desejado */}
           <div className="w-full md:w-1/2">
             <label className="block text-xs font-bold text-slate-700 mb-1.5">E-mail para envio do relatório:</label>
             <input
@@ -439,7 +416,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         </div>
       </div>
 
-      {/* Hidden layout specifically customized for PRINT option styling */}
       {isExporting && (
         <>
           <style type="text/css">
