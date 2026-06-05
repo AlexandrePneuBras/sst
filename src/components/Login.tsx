@@ -11,30 +11,32 @@ interface LoginProps {
 
 export default function Login({ onLoginSuccess }: LoginProps) {
   const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState(''); // NOVO: Estado para armazenar a senha
   const [isAdmin, setIsAdmin] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validação "Back-end" com e-mail e senha
     if (isAdmin) {
-      if (email === 'sst@pneubras.com.br') { 
+      if (email === 'sst@pneubras.com.br' && senha === 'admin123') { 
         onLoginSuccess({
           nome: 'Administrador SST',
           email: 'sst@pneubras.com.br',
           isAdmin: true,
         });
       } else {
-        alert('Credenciais de administrador inválidas.');
+        alert('E-mail ou senha de administrador inválidos.');
       }
     } else {
-      if (email === 'alexandre.esc@gmail.com') {
+      if (email === 'alexandre.esc@gmail.com' && senha === 'colab123') {
         onLoginSuccess({
           nome: 'Alexandre Rêgo',
           email: 'alexandre.esc@gmail.com',
           isAdmin: false,
         });
       } else {
-        alert('Credenciais de colaborador inválidas.');
+        alert('E-mail ou senha de colaborador inválidos.');
       }
     }
   };
@@ -43,7 +45,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
       
       {/* Lado Esquerdo - Ocupa todo o espaço restante */}
-      {/* Fundo ajustado para a nova cor HEX #2596be */}
       <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-[#2596be]">
         
         {/* Imagem intacta */}
@@ -52,7 +53,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           style={{ backgroundImage: `url(${FundoInicial})` }}
         ></div>
         
-        {/* Gradiente superior esfumado usando a nova cor para apagar a linha de corte da arte */}
+        {/* Gradiente superior esfumado */}
         <div className="absolute top-0 left-0 w-full h-[20%] bg-gradient-to-b from-[#2596be] via-[#2596be]/80 to-transparent pointer-events-none z-0"></div>
         
         {/* Gradiente escuro inferior para dar leitura aos textos */}
@@ -103,7 +104,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           <div className="flex p-1 bg-slate-100/80 rounded-lg mb-8 border border-slate-200/80">
             <button
               type="button"
-              onClick={() => setIsAdmin(false)}
+              onClick={() => { setIsAdmin(false); setEmail(''); setSenha(''); }}
               className={`flex-1 py-2.5 text-xs font-bold rounded-md transition-all duration-200 ${
                 !isAdmin ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700'
               }`}
@@ -112,7 +113,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             </button>
             <button
               type="button"
-              onClick={() => setIsAdmin(true)}
+              onClick={() => { setIsAdmin(true); setEmail(''); setSenha(''); }}
               className={`flex-1 py-2.5 text-xs font-bold rounded-md transition-all duration-200 ${
                 isAdmin ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/50' : 'text-slate-500 hover:text-slate-700'
               }`}
@@ -135,19 +136,34 @@ export default function Login({ onLoginSuccess }: LoginProps) {
                 required
               />
             </div>
+
+            {/* NOVO: Campo de Senha */}
+            <div>
+              <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">
+                Senha de Acesso
+              </label>
+              <input
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-5 py-3.5 bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 text-sm font-medium placeholder-slate-400"
+                required
+              />
+            </div>
             
             <button
               type="submit"
-              className="w-full bg-slate-900 text-white text-sm font-bold py-3.5 rounded-lg hover:bg-slate-800 active:scale-[0.98] transition-all flex justify-center items-center space-x-2 shadow-md hover:shadow-lg"
+              className="w-full bg-slate-900 text-white text-sm font-bold py-3.5 rounded-lg hover:bg-slate-800 active:scale-[0.98] transition-all flex justify-center items-center space-x-2 shadow-md hover:shadow-lg mt-2"
             >
               <span>Acessar Painel</span>
               <span aria-hidden="true">&rarr;</span>
             </button>
           </form>
 
-          {/* Área de credenciais */}
+          {/* Área de credenciais - Mantivemos apenas o E-mail, a senha fica omitida */}
           <div className="mt-8 pt-6 border-t border-slate-100">
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">Homologação</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">Homologação (Apenas E-mails)</p>
             <div className="bg-slate-50/80 rounded-lg p-3 border border-slate-200/60 text-[10px] text-slate-600 space-y-2.5">
               <p className="flex justify-between items-center">
                 <span className="font-semibold text-slate-700">Colaborador</span> 
