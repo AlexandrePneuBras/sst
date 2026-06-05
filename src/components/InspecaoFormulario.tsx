@@ -36,7 +36,7 @@ const QUESTIONS = [
   },
   {
     id: 6,
-    categoria: "Organização e Limpeza do Ambiente",
+    categoria: "Organização e Limpeza do Ambiente da Filial",
     texto: "O piso da área de serviços (valetas, boxes de alinhamento) está limpo, desobstruído e livre de poças de óleo/água que possam causar escorregões?"
   },
   {
