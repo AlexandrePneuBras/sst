@@ -36,7 +36,7 @@ const QUESTIONS = [
   },
   {
     id: 6,
-    categoria: "Organização e Limpeza do Ambiente da Filial",
+    categoria: "Organização e Limpeza do Ambiente",
     texto: "O piso da área de serviços (valetas, boxes de alinhamento) está limpo, desobstruído e livre de poças de óleo/água que possam causar escorregões?"
   },
   {
@@ -50,6 +50,9 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
   const [unidade, setUnidade] = useState('');
   const [inspetor, setInspetor] = useState(user?.nome || '');
   const [data, setData] = useState(new Date().toISOString().split('T')[0]);
+  
+  // NOVO: Estado para armazenar o e-mail de destino escolhido na hora
+  const [emailDestino, setEmailDestino] = useState(user?.email || '');
   
   // Respostas state
   const [respostas, setRespostas] = useState<{
@@ -131,56 +134,68 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     setTimeout(() => setNotificacao(null), 5000);
   };
 
-  // Submit Flow - Atualizado com mock de processamento
+  // Submit Flow com verificação do email e CORS bypass
   const handleSubmit = async (enviarEmail: boolean, enviarGDrive: boolean) => {
     if (!unidade.trim()) {
       triggerNotification('erro', 'Por favor, informe a Unidade/Loja.');
       return;
     }
 
+    // Trava de segurança: impede o envio se o e-mail não for preenchido
+    if (enviarEmail && !emailDestino.trim()) {
+      triggerNotification('erro', 'Por favor, informe o e-mail de destino.');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Monta o pacote de dados (Payload) com todas as informações e decisões do formulário
+      const mappedRespostas: any = {};
+      Object.keys(respostas).forEach((key: any) => {
+        mappedRespostas[key] = {
+          status: respostas[key].status,
+          observacoes: respostas[key].observacoes,
+          fotos: respostas[key].fotos.map((f: any) => f.url) 
+        };
+      });
+
       const payload = {
+        tipoDoc: 'Inspecao',
         unidade,
         inspetor,
         data,
-        respostas, // Contém status, observações e as fotos em Base64
+        respostas: mappedRespostas,
         enviarEmail,
         enviarGDrive,
-        emailDestino: user?.email || 'adm@pneubras.com.br',
+        emailDestino: emailDestino, // Aqui o sistema puxa o e-mail digitado no input
         pastaDestinoUrl: config.gdriveFormsFolderUrl
       };
 
-      // URL DA SUA API OU WEBHOOK:
-      // Se você usa o server.ts (Node.js), mantenha '/api/inspecoes'.
-      // Se for usar n8n, Power Automate ou Google Apps Script, coloque a URL do Webhook aqui.
-      const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec'; // Ex: 'https://script.google.com/macros/s/.../exec'
+      // SUBSTITUA POR SUA URL DO GOOGLE APPS SCRIPT
+      const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec';
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Contorna o bloqueio de CORS
         body: JSON.stringify(payload)
       });
 
       if (!res.ok) {
-        throw new Error('Falha na resposta do servidor/webhook');
+        throw new Error('Falha na resposta do webhook');
       }
 
-      let msg = "Formulário de Inspeção processado com sucesso!";
+      let msg = "Formulário de Inspeção salvo com sucesso!";
       if (enviarEmail && enviarGDrive) {
-        msg = `Auditoria concluída! E-mail disparado para ${payload.emailDestino} e PDF arquivado no GDrive.`;
+        msg = `Inspeção salva! Enviado e-mail para ${emailDestino} e arquivado no GDrive.`;
       } else if (enviarEmail) {
-        msg = `Auditoria concluída! E-mail enviado com sucesso para ${payload.emailDestino}.`;
+        msg = `Inspeção salva! E-mail enviado com sucesso para ${emailDestino}.`;
       } else if (enviarGDrive) {
-        msg = `Auditoria concluída! Arquivado com sucesso no repositório GDrive.`;
+        msg = `Inspeção salva! Registrada e arquivada legalmente no GDrive.`;
       }
       
       triggerNotification('sucesso', msg);
-      onSaved(); 
+      onSaved();
     } catch (e) {
-      console.error(e);
-      triggerNotification('erro', 'Erro ao conectar com a API de integração. O envio falhou.');
+      triggerNotification('erro', 'Erro de conexão com o integrador. O envio falhou.');
     } finally {
       setLoading(false);
     }
@@ -192,20 +207,15 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
       triggerNotification('erro', 'Por favor, preencha a Loja primeiro para gerar um relatório estruturado.');
       return;
     }
-    
     setIsExporting(true);
-    
-    // Pequeno delay para garantir que a DOM do relatório foi renderizada antes de acionar a impressão
     setTimeout(() => {
       window.print();
-      // Retorna a interface original após a janela de impressão ser fechada
       setIsExporting(false);
     }, 500);
   };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-1 font-sans" id="full-inspecao-container">
-      
       {/* Visual notification bar */}
       {notificacao && (
         <div className={`p-4 rounded-lg flex items-center shadow-sm animate-fade-in text-xs ${
@@ -371,53 +381,67 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         })}
       </div>
 
-      {/* Action buttons list */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-xs text-slate-400 text-center sm:text-left leading-normal">
+      {/* Action buttons list com Input Dinâmico de E-mail */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col gap-5">
+        <div className="text-xs text-slate-400 leading-normal">
           <p className="font-bold text-slate-500 uppercase tracking-wide">Opções Legais e Execução Técnica</p>
           <p>O preenchimento gera arquivamento instantâneo do histórico.</p>
         </div>
 
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
-          <button
-            type="button"
-            id="btn-inspecao-imprimir-pdf"
-            disabled={loading}
-            onClick={handlePrint}
-            className="px-4 py-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
-          >
-            <Download className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-            {loading ? 'Processando...' : 'Salvar formato .PDF'}
-          </button>
+        <div className="flex flex-col md:flex-row items-end justify-between gap-4 pt-4 border-t border-slate-100">
+          
+          {/* Campo para o Gestor inserir o e-mail desejado */}
+          <div className="w-full md:w-1/2">
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">E-mail para envio do relatório:</label>
+            <input
+              type="email"
+              value={emailDestino}
+              onChange={(e) => setEmailDestino(e.target.value)}
+              placeholder="informe.o.email@pneubras.com.br"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+            />
+          </div>
 
-          <button
-            type="button"
-            id="btn-inspecao-submit-gdrive"
-            disabled={loading}
-            onClick={() => handleSubmit(false, true)}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
-          >
-            <Folder className="w-3.5 h-3.5 mr-1.5" />
-            {loading ? 'Processando...' : 'Enviar para GDrive'}
-          </button>
+          <div className="flex flex-wrap gap-2 w-full md:w-auto justify-end">
+            <button
+              type="button"
+              id="btn-inspecao-imprimir-pdf"
+              disabled={loading}
+              onClick={handlePrint}
+              className="px-4 py-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
+            >
+              <Download className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
+              {loading ? 'Processando...' : 'Salvar formato .PDF'}
+            </button>
 
-          <button
-            type="button"
-            id="btn-inspecao-submit-email"
-            disabled={loading}
-            onClick={() => handleSubmit(true, false)}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded flex items-center cursor-pointer disabled:opacity-50"
-          >
-            <Mail className="w-3.5 h-3.5 mr-1.5" />
-            {loading ? 'Processando...' : 'Enviar para E-mail'}
-          </button>
+            <button
+              type="button"
+              id="btn-inspecao-submit-gdrive"
+              disabled={loading}
+              onClick={() => handleSubmit(false, true)}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
+            >
+              <Folder className="w-3.5 h-3.5 mr-1.5" />
+              {loading ? 'Processando...' : 'Enviar para GDrive'}
+            </button>
+
+            <button
+              type="button"
+              id="btn-inspecao-submit-email"
+              disabled={loading}
+              onClick={() => handleSubmit(true, false)}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded flex items-center cursor-pointer disabled:opacity-50"
+            >
+              <Mail className="w-3.5 h-3.5 mr-1.5" />
+              {loading ? 'Processando...' : 'Enviar para E-mail'}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Hidden layout specifically customized for PRINT option styling */}
       {isExporting && (
         <>
-          {/* Estilo CSS injetado para esconder a aplicação inteira e forçar a impressão APENAS do relatório */}
           <style type="text/css">
             {`
               @media print {
