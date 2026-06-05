@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertOctagon, CheckCircle, ExternalLink, ArrowRight, Lock } from 'lucide-react';
 import { Noticia, PilulaTreinamento, QuizRespostum } from '../types';
 
@@ -8,7 +8,7 @@ interface ColaboradorHomeProps {
   pilulas: PilulaTreinamento[];
   respostasQuiz: QuizRespostum[];
   onSubmitQuiz: (pillId: string, acerto: boolean) => Promise<void>;
-  // NOVA PROP: O componente pai vai dizer qual tela mostrar
+  // Propriedade recebida da barra lateral
   activeView: 'noticias' | 'formularios' | 'dialogos'; 
 }
 
@@ -18,7 +18,7 @@ export default function ColaboradorHome({
   pilulas,
   respostasQuiz,
   onSubmitQuiz,
-  activeView // Recebendo o estado do componente pai
+  activeView
 }: ColaboradorHomeProps) {
   
   // Quiz states
@@ -77,6 +77,11 @@ export default function ColaboradorHome({
     return { status: 'Pendente' as const };
   };
 
+  // Limpa o formulário ativo caso o usuário clique em outra aba na barra lateral
+  useEffect(() => {
+    setActiveFormLayout(null);
+  }, [activeView]);
+
   return (
     <div className="space-y-6 w-full">
       {/* Banner de Boas Vindas */}
@@ -97,7 +102,7 @@ export default function ColaboradorHome({
         </div>
       </div>
 
-      {/* ÁREA DE CONTEÚDO DINÂMICO (Baseado na activeView recebida via prop) */}
+      {/* ÁREA DE CONTEÚDO DINÂMICO */}
       
       {/* 1. NOTÍCIAS SST SECTION */}
       {activeView === 'noticias' && (
@@ -178,7 +183,7 @@ export default function ColaboradorHome({
               </div>
             </div>
           ) : (
-            <div className="bg-[#FAF9F6] rounded-xl border border-slate-200 overflow-hidden shadow-sm max-w-2xl font-sans">
+            <div className="bg-[#FAF9F6] rounded-xl border border-slate-200 overflow-hidden shadow-sm max-w-2xl font-sans mx-auto">
               <div className="h-4 bg-slate-800" />
               <div className="p-6 space-y-6">
                 <div className="bg-white rounded-lg p-6 border border-slate-200 space-y-2">
@@ -191,15 +196,63 @@ export default function ColaboradorHome({
                 {!formSubmitted ? (
                   <form onSubmit={(e) => { e.preventDefault(); setFormSubmitted(true); }} className="space-y-4 text-xs">
                     {activeFormLayout === 'tipo1' && (
-                      <div className="bg-white rounded-lg p-5 border border-slate-200 space-y-3">
-                        <p className="font-bold text-slate-800 text-sm">1. Os mecânicos estão utilizando os protetores auriculares corretamente? *</p>
-                        <div className="space-y-2 font-medium text-slate-600">
-                          <label className="flex items-center space-x-2"><input type="radio" required name="qa1" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, integralmente</span></label>
-                          <label className="flex items-center space-x-2"><input type="radio" name="qa1" className="text-slate-900 focus:ring-slate-800" /> <span>Não utilizam</span></label>
+                      <>
+                        <div className="bg-white rounded-lg p-5 border border-slate-200 space-y-3">
+                          <p className="font-bold text-slate-800 text-sm">1. Os mecânicos estão utilizando os protetores auriculares corretamente? *</p>
+                          <div className="space-y-2 font-medium text-slate-600">
+                            <label className="flex items-center space-x-2"><input type="radio" required name="qa1" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, integralmente</span></label>
+                            <label className="flex items-center space-x-2"><input type="radio" name="qa1" className="text-slate-900 focus:ring-slate-800" /> <span>Parcialmente (reclamam de desconforto)</span></label>
+                            <label className="flex items-center space-x-2"><input type="radio" name="qa1" className="text-slate-900 focus:ring-slate-800" /> <span>Não utilizam</span></label>
+                          </div>
                         </div>
-                      </div>
+                        <div className="bg-white rounded-lg p-5 border border-slate-200 space-y-3">
+                          <p className="font-bold text-slate-800 text-sm">2. Os coletores de óleo queimado e solventes estão tampados e em local protegido? *</p>
+                          <div className="space-y-2 font-medium text-slate-600">
+                            <label className="flex items-center space-x-2"><input type="radio" required name="qa2" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, conforme NR-26</span></label>
+                            <label className="flex items-center space-x-2"><input type="radio" name="qa2" className="text-slate-900 focus:ring-slate-800" /> <span>Não, há tambores abertos</span></label>
+                          </div>
+                        </div>
+                      </>
                     )}
-                    {/* Restante dos formulários omitidos para brevidade, mantenha como estava no seu código original */}
+
+                    {activeFormLayout === 'tipo2' && (
+                      <>
+                        <div className="bg-white rounded-lg p-5 border border-slate-200 space-y-3">
+                          <p className="font-bold text-slate-800 text-sm">1. A cadeira de trabalho possui ajuste de altura regulado de forma ergonômica? *</p>
+                          <div className="space-y-2 font-medium text-slate-600">
+                            <label className="flex items-center space-x-2"><input type="radio" required name="qb1" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, regulada perfeitamente</span></label>
+                            <label className="flex items-center space-x-2"><input type="radio" name="qb1" className="text-slate-900 focus:ring-slate-800" /> <span>Não / Cadeira sem ajustes</span></label>
+                          </div>
+                        </div>
+                        <div className="bg-white rounded-lg p-5 border border-slate-200 space-y-3">
+                          <p className="font-bold text-slate-800 text-sm">2. Há reflexos prejudiciais da luz nas telas dos computadores? *</p>
+                          <div className="space-y-2 font-medium text-slate-600">
+                            <label className="flex items-center space-x-2"><input type="radio" required name="qb2" className="text-slate-900 focus:ring-slate-800" /> <span>Não, iluminação confortável</span></label>
+                            <label className="flex items-center space-x-2"><input type="radio" name="qb2" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, excesso de luz solar ou luminária direta</span></label>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {activeFormLayout === 'tipo3' && (
+                      <>
+                        <div className="bg-white rounded-lg p-5 border border-slate-200 space-y-3">
+                          <p className="font-bold text-slate-800 text-sm">1. Os extintores das salas de reunião e copa estão com a trava plástica inviolada? *</p>
+                          <div className="space-y-2 font-medium text-slate-600">
+                            <label className="flex items-center space-x-2"><input type="radio" required name="qc1" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, todos revisados</span></label>
+                            <label className="flex items-center space-x-2"><input type="radio" name="qc1" className="text-slate-900 focus:ring-slate-800" /> <span>Não/Inconsistentes em alguma área</span></label>
+                          </div>
+                        </div>
+                        <div className="bg-white rounded-lg p-5 border border-slate-200 space-y-3">
+                          <p className="font-bold text-slate-800 text-sm">2. O plano de saída de emergência geral da Matriz está afixado em local visível ao lado do elevador? *</p>
+                          <div className="space-y-2 font-medium text-slate-600">
+                            <label className="flex items-center space-x-2"><input type="radio" required name="qc2" className="text-slate-900 focus:ring-slate-800" /> <span>Sim</span></label>
+                            <label className="flex items-center space-x-2"><input type="radio" name="qc2" className="text-slate-900 focus:ring-slate-800" /> <span>Não localizado</span></label>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
                     <div className="flex justify-between items-center pt-2">
                       <button type="button" onClick={() => setActiveFormLayout(null)} className="text-slate-600 font-bold hover:text-slate-800 underline">Voltar para a lista</button>
                       <button type="submit" className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded cursor-pointer text-xs">Enviar Respostas p/ Servidor</button>
@@ -276,22 +329,21 @@ export default function ColaboradorHome({
             })}
           </div>
 
-          {/* Modal de Quiz - Mantenha igual ao seu código original */}
+          {/* Modal de Quiz */}
           {activeQuizPill && (
             <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-               {/* Conteúdo do Modal (omitido aqui para encurtar a leitura, pode colar a sua versão) */}
                <div className="bg-white rounded-xl max-w-lg w-full p-6 font-sans">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="font-bold text-slate-900">{activeQuizPill.titulo}</h3>
-                    <button onClick={() => { setActiveQuizPill(null); setQuizFeedback(null); }} className="text-slate-400 font-bold">Fechar</button>
+                    <button onClick={() => { setActiveQuizPill(null); setQuizFeedback(null); }} className="text-slate-400 font-bold hover:text-slate-600">Fechar</button>
                   </div>
                   {!quizFeedback ? (
                     <form onSubmit={handleQuizSubmit} className="space-y-4 text-xs">
-                      <p className="font-bold">{activeQuizPill.quiz.pergunta}</p>
+                      <p className="font-bold text-slate-800 text-sm">{activeQuizPill.quiz.pergunta}</p>
                       {activeQuizPill.quiz.opcoes.map((opcao, idx) => (
-                        <label key={idx} className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer">
+                        <label key={idx} className={`flex items-center space-x-3 p-3 border rounded-lg cursor-pointer ${selectedQuizOption === idx ? 'bg-slate-50 border-slate-800' : 'border-slate-200'}`}>
                           <input type="radio" name="quizOption" onChange={() => setSelectedQuizOption(idx)} checked={selectedQuizOption === idx} />
-                          <span>{opcao}</span>
+                          <span className="font-medium text-slate-700">{opcao}</span>
                         </label>
                       ))}
                       <button type="submit" disabled={selectedQuizOption === null} className="w-full py-2.5 bg-slate-900 text-white font-bold rounded cursor-pointer disabled:opacity-50">Gravar Resposta</button>
@@ -299,7 +351,7 @@ export default function ColaboradorHome({
                   ) : (
                     <div className="text-center p-4 space-y-4">
                        <p className="font-bold text-slate-800">{quizFeedback.msg}</p>
-                       <button onClick={() => { setActiveQuizPill(null); setQuizFeedback(null); }} className="px-4 py-2 bg-slate-100 font-bold rounded text-xs cursor-pointer">Avançar</button>
+                       <button onClick={() => { setActiveQuizPill(null); setQuizFeedback(null); }} className="px-4 py-2 bg-slate-100 font-bold rounded text-xs cursor-pointer hover:bg-slate-200">Avançar</button>
                     </div>
                   )}
                </div>

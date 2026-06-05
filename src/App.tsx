@@ -3,7 +3,7 @@ import {
   Users, Newspaper, Video, GraduationCap, Plus, Trash2,
   ShieldCheck, LayoutDashboard, FileText, Settings, LogOut,
   FolderLock, UserCheck, Menu, X, ArrowLeftRight, CheckCircle2, ShieldAlert,
-  Activity, ChevronRight, BarChart3, Cloud, ExternalLink
+  Activity, ChevronRight, BarChart3, Cloud, ExternalLink, FileSpreadsheet
 } from 'lucide-react';
 import { Colaborador, Noticia, InspecaoForm, ConformidadeForm, PilulaTreinamento, QuizRespostum, AppConfig } from './types';
 import Login from './components/Login';
@@ -35,7 +35,12 @@ export default function App() {
   });
 
   const [loading, setLoading] = useState(true);
+  
+  // Controle de Abas
   const [activeAdminTab, setActiveAdminTab] = useState<'painel' | 'inspecao' | 'conformidade' | 'dados'>('painel');
+  // NOVO: Estado para controlar as abas do colaborador a partir da barra lateral
+  const [activeColaboradorTab, setActiveColaboradorTab] = useState<'noticias' | 'formularios' | 'dialogos'>('noticias');
+  
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const syncDatabase = async () => {
@@ -114,6 +119,7 @@ export default function App() {
     setUser(null);
     setIsAdminViewMode(false);
     setActiveAdminTab('painel');
+    setActiveColaboradorTab('noticias');
   };
 
   // API wrappers
@@ -179,7 +185,6 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-slate-800 font-sans space-y-8">
-        {/* Container retangular para acomodar a logo horizontal perfeitamente */}
         <div className="relative flex items-center justify-center w-72 h-36 bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
           <div className="absolute inset-0 border-4 border-transparent border-t-emerald-600 rounded-2xl animate-spin-slow opacity-20"></div>
           
@@ -209,7 +214,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans selection:bg-emerald-200 selection:text-emerald-900">
       
-      {/* Header corporativo: Fundo super escuro para dar contraste absoluto com a logo branca */}
       <header className="bg-slate-950 border-b border-slate-800 text-white py-3 px-6 flex justify-between items-center sticky top-0 z-40 shadow-sm">
         <div className="flex items-center space-x-5">
           <button
@@ -221,7 +225,6 @@ export default function App() {
           </button>
           
           <div className="flex items-center space-x-5 group cursor-pointer">
-            {/* LOGOMARCA HORIZONTAL: Fundo branco, cantos arredondados contidos, respiro nas laterais */}
             <div className="h-16 w-44 bg-white rounded-xl py-2 px-4 flex items-center justify-center shadow-md ring-1 ring-white/10 group-hover:scale-105 transition-transform duration-300">
               {!logoError ? (
                 <img 
@@ -390,6 +393,58 @@ export default function App() {
                     <p className="font-bold text-slate-200 mb-1">A segurança começa por você!</p>
                     <p className="text-slate-400 text-xs">Complete seus DDS e avaliações comportamentais no painel ao lado para manter sua área segura.</p>
                   </div>
+
+                  {/* NOVO: MENUS DO COLABORADOR */}
+                  <div className="pt-6">
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-2 mb-3">Menu de Navegação</p>
+                    <div className="space-y-1">
+                      <button
+                        onClick={() => { setActiveColaboradorTab('noticias'); setMobileMenuOpen(false); }}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all duration-200 ${
+                          activeColaboradorTab === 'noticias'
+                            ? 'bg-slate-800 text-emerald-400 shadow-sm'
+                            : 'hover:bg-slate-800/50 hover:text-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Newspaper className="w-4 h-4" />
+                          <span className="text-sm">Notícias SST</span>
+                        </div>
+                        {activeColaboradorTab === 'noticias' && <ChevronRight className="w-4 h-4 opacity-50" />}
+                      </button>
+
+                      <button
+                        onClick={() => { setActiveColaboradorTab('formularios'); setMobileMenuOpen(false); }}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all duration-200 ${
+                          activeColaboradorTab === 'formularios'
+                            ? 'bg-slate-800 text-emerald-400 shadow-sm'
+                            : 'hover:bg-slate-800/50 hover:text-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <FileSpreadsheet className="w-4 h-4" />
+                          <span className="text-sm">Formulários Comportamentais</span>
+                        </div>
+                        {activeColaboradorTab === 'formularios' && <ChevronRight className="w-4 h-4 opacity-50" />}
+                      </button>
+
+                      <button
+                        onClick={() => { setActiveColaboradorTab('dialogos'); setMobileMenuOpen(false); }}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between transition-all duration-200 ${
+                          activeColaboradorTab === 'dialogos'
+                            ? 'bg-slate-800 text-emerald-400 shadow-sm'
+                            : 'hover:bg-slate-800/50 hover:text-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Video className="w-4 h-4" />
+                          <span className="text-sm">Diálogos de SST</span>
+                        </div>
+                        {activeColaboradorTab === 'dialogos' && <ChevronRight className="w-4 h-4 opacity-50" />}
+                      </button>
+                    </div>
+                  </div>
+
                 </nav>
               </div>
             )}
@@ -548,7 +603,15 @@ export default function App() {
               </div>
             ) : (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <ColaboradorHome user={user} noticias={noticias} pilulas={pilulas} respostasQuiz={respostasQuiz} onSubmitQuiz={handleSubmitQuizRespotum} />
+                {/* NOVO: Passando a aba ativa como Propriedade (activeView) */}
+                <ColaboradorHome 
+                  user={user} 
+                  noticias={noticias} 
+                  pilulas={pilulas} 
+                  respostasQuiz={respostasQuiz} 
+                  onSubmitQuiz={handleSubmitQuizRespotum}
+                  activeView={activeColaboradorTab} 
+                />
               </div>
             )}
           </div>
