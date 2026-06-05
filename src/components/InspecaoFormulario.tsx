@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Mail, FileUp, Folder, Download, Plus, Trash2, CheckCircle, AlertTriangle, HelpCircle } from 'lucide-react';
+import { FileText, Mail, FileUp, Folder, Download, Plus, Trash2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { InspecaoForm } from '../types';
 
 interface InspecaoFormProps {
@@ -131,7 +131,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     setTimeout(() => setNotificacao(null), 5000);
   };
 
-  // Submit flow helper
+  // Submit Flow - Atualizado com mock de processamento
   const handleSubmit = async (enviarEmail: boolean, enviarGDrive: boolean) => {
     if (!unidade.trim()) {
       triggerNotification('erro', 'Por favor, informe a Unidade/Loja.');
@@ -140,45 +140,47 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
 
     setLoading(true);
     try {
-      // Map structures to format needed by server
-      const mappedRespostas: any = {};
-      Object.keys(respostas).forEach((key: any) => {
-        mappedRespostas[key] = {
-          status: respostas[key].status,
-          observacoes: respostas[key].observacoes,
-          fotos: respostas[key].fotos.map((f: any) => f.url) // Save string images
-        };
-      });
+      // Monta o pacote de dados (Payload) com todas as informações e decisões do formulário
+      const payload = {
+        unidade,
+        inspetor,
+        data,
+        respostas, // Contém status, observações e as fotos em Base64
+        enviarEmail,
+        enviarGDrive,
+        emailDestino: user?.email || 'adm@pneubras.com.br',
+        pastaDestinoUrl: config.gdriveFormsFolderUrl
+      };
 
-      const res = await fetch('/api/inspecoes', {
+      // URL DA SUA API OU WEBHOOK:
+      // Se você usa o server.ts (Node.js), mantenha '/api/inspecoes'.
+      // Se for usar n8n, Power Automate ou Google Apps Script, coloque a URL do Webhook aqui.
+      const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec'; // Ex: 'https://script.google.com/macros/s/.../exec'
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          unidade,
-          inspetor,
-          data,
-          respostas: mappedRespostas,
-          enviadoEmail: enviarEmail,
-          enviadoGDrive: enviarGDrive
-        })
+        body: JSON.stringify(payload)
       });
 
-      if (res.ok) {
-        let msg = "Formulário de Inspeção salvo com sucesso!";
-        if (enviarEmail && enviarGDrive) {
-          msg = `Inspeção salva! Enviado e-mail para ${user?.email || 'adm@pneubras.com.br'} e arquivado no GDrive em "${config.gdriveFormsFolderUrl}".`;
-        } else if (enviarEmail) {
-          msg = `Inspeção salva! Cópia enviada de forma simulada para ${user?.email || 'adm@pneubras.com.br'}.`;
-        } else if (enviarGDrive) {
-          msg = `Inspeção salva! Registrada e arquivada legalmente no GDrive.`;
-        }
-        triggerNotification('sucesso', msg);
-        onSaved();
-      } else {
-        triggerNotification('erro', 'Houve um erro técnico ao salvar no servidor.');
+      if (!res.ok) {
+        throw new Error('Falha na resposta do servidor/webhook');
       }
+
+      let msg = "Formulário de Inspeção processado com sucesso!";
+      if (enviarEmail && enviarGDrive) {
+        msg = `Auditoria concluída! E-mail disparado para ${payload.emailDestino} e PDF arquivado no GDrive.`;
+      } else if (enviarEmail) {
+        msg = `Auditoria concluída! E-mail enviado com sucesso para ${payload.emailDestino}.`;
+      } else if (enviarGDrive) {
+        msg = `Auditoria concluída! Arquivado com sucesso no repositório GDrive.`;
+      }
+      
+      triggerNotification('sucesso', msg);
+      onSaved(); 
     } catch (e) {
-      triggerNotification('erro', 'Erro de conexão com o backend.');
+      console.error(e);
+      triggerNotification('erro', 'Erro ao conectar com a API de integração. O envio falhou.');
     } finally {
       setLoading(false);
     }
@@ -190,15 +192,20 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
       triggerNotification('erro', 'Por favor, preencha a Loja primeiro para gerar um relatório estruturado.');
       return;
     }
+    
     setIsExporting(true);
+    
+    // Pequeno delay para garantir que a DOM do relatório foi renderizada antes de acionar a impressão
     setTimeout(() => {
       window.print();
+      // Retorna a interface original após a janela de impressão ser fechada
       setIsExporting(false);
     }, 500);
   };
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-1 font-sans" id="full-inspecao-container">
+      
       {/* Visual notification bar */}
       {notificacao && (
         <div className={`p-4 rounded-lg flex items-center shadow-sm animate-fade-in text-xs ${
@@ -375,11 +382,12 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
           <button
             type="button"
             id="btn-inspecao-imprimir-pdf"
+            disabled={loading}
             onClick={handlePrint}
-            className="px-4 py-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded flex items-center cursor-pointer"
+            className="px-4 py-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
           >
             <Download className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-            Salvar formato .PDF
+            {loading ? 'Processando...' : 'Salvar formato .PDF'}
           </button>
 
           <button
@@ -390,7 +398,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
             className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
           >
             <Folder className="w-3.5 h-3.5 mr-1.5" />
-            Enviar para GDrive
+            {loading ? 'Processando...' : 'Enviar para GDrive'}
           </button>
 
           <button
@@ -401,87 +409,111 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
             className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded flex items-center cursor-pointer disabled:opacity-50"
           >
             <Mail className="w-3.5 h-3.5 mr-1.5" />
-            Enviar para E-mail
+            {loading ? 'Processando...' : 'Enviar para E-mail'}
           </button>
         </div>
       </div>
 
       {/* Hidden layout specifically customized for PRINT option styling */}
       {isExporting && (
-        <div className="fixed inset-0 bg-white z-[9999] p-8 overflow-y-auto" id="inspecao-printable-pdf-document">
-          <div className="border border-gray-300 p-8 rounded-lg max-w-4xl mx-auto space-y-6">
-            <div className="flex justify-between items-center pb-6 border-b border-gray-300">
-              <div>
-                <h1 className="text-2xl font-black tracking-tight text-gray-900">RELATÓRIO DE INSPEÇÃO SST</h1>
-                <p className="text-xs text-gray-500 uppercase font-mono tracking-wider">PneuBras &amp; PneuDrive - Relatório Oficial de Auditoria Física</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-bold text-gray-800">CÓDIGO: PB-INS-{Date.now().toString().slice(-4)}</p>
-                <p className="text-xs text-gray-400">Data de Geração: {data}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-6 text-sm py-4 bg-gray-50 p-4 rounded border border-gray-200">
-              <div>
-                <p className="text-xs font-semibold text-gray-400">UNIDADE / LOJA:</p>
-                <p className="font-bold text-gray-800">{unidade}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-400">INSPETOR RESPONSÁVEL:</p>
-                <p className="font-bold text-gray-800">{inspetor}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-400">DATA DA INSPEÇÃO:</p>
-                <p className="font-bold text-gray-800">{data}</p>
-              </div>
-            </div>
-
-            <div className="space-y-6 pt-4">
-              {QUESTIONS.map((q) => (
-                <div key={q.id} className="pb-4 border-b border-gray-200 space-y-2">
-                  <div className="flex justify-between items-start">
-                    <p className="font-bold text-gray-800 text-sm">
-                      {q.id}. {q.texto}
-                    </p>
-                    <span className={`px-2 py-0.5 text-xs font-black rounded border ${
-                      respostas[q.id].status === 'Conforme' ? 'bg-green-100 text-green-800 border-green-300' :
-                      respostas[q.id].status === 'Não Conforme' ? 'bg-red-100 text-red-800 border-red-300' :
-                      'bg-yellow-100 text-yellow-800 border-yellow-300'
-                    }`}>
-                      {respostas[q.id].status.toUpperCase()}
-                    </span>
-                  </div>
-                  {respostas[q.id].observacoes && (
-                    <p className="text-xs bg-gray-50 p-2 rounded italic text-gray-600 border-l-2 border-gray-400">
-                      <strong>Obs:</strong> {respostas[q.id].observacoes}
-                    </p>
-                  )}
-                  {respostas[q.id].fotos.length > 0 && (
-                    <div className="flex gap-2 pt-1">
-                      {respostas[q.id].fotos.map((foto, idx) => (
-                        <div key={idx} className="w-16 h-16 rounded border overflow-hidden">
-                          <img src={foto.url} alt="anexo" className="w-full h-full object-cover" />
-                        </div>
-                      ))}
-                      <span className="text-[10px] text-gray-400 self-end">({respostas[q.id].fotos.length} fotos anexadas)</span>
-                    </div>
-                  )}
+        <>
+          {/* Estilo CSS injetado para esconder a aplicação inteira e forçar a impressão APENAS do relatório */}
+          <style type="text/css">
+            {`
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                #inspecao-printable-pdf-document, #inspecao-printable-pdf-document * {
+                  visibility: visible;
+                }
+                #inspecao-printable-pdf-document {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                  background: white;
+                  padding: 20px;
+                }
+              }
+            `}
+          </style>
+          
+          <div className="fixed inset-0 bg-white z-[9999] p-8 overflow-y-auto" id="inspecao-printable-pdf-document">
+            <div className="border border-gray-300 p-8 rounded-lg max-w-4xl mx-auto space-y-6">
+              <div className="flex justify-between items-center pb-6 border-b border-gray-300">
+                <div>
+                  <h1 className="text-2xl font-black tracking-tight text-gray-900">RELATÓRIO DE INSPEÇÃO SST</h1>
+                  <p className="text-xs text-gray-500 uppercase font-mono tracking-wider">PneuBras &amp; PneuDrive - Relatório Oficial de Auditoria Física</p>
                 </div>
-              ))}
-            </div>
-
-            <div className="pt-8 grid grid-cols-2 gap-12 text-center text-xs">
-              <div className="border-t border-gray-400 pt-4">
-                <p className="font-bold text-gray-800">{inspetor}</p>
-                <p className="text-gray-400">Assinatura Eletrônica do Inspetor</p>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-gray-800">CÓDIGO: PB-INS-{Date.now().toString().slice(-4)}</p>
+                  <p className="text-xs text-gray-400">Data de Geração: {data}</p>
+                </div>
               </div>
-              <div className="border-t border-gray-400 pt-4">
-                <p className="font-bold text-gray-800">Equipe SST Matriz PneuBras</p>
-                <p className="text-gray-400">Responsável Geral SST / Engenharia</p>
+
+              <div className="grid grid-cols-3 gap-6 text-sm py-4 bg-gray-50 p-4 rounded border border-gray-200">
+                <div>
+                  <p className="text-xs font-semibold text-gray-400">UNIDADE / LOJA:</p>
+                  <p className="font-bold text-gray-800">{unidade}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-400">INSPETOR RESPONSÁVEL:</p>
+                  <p className="font-bold text-gray-800">{inspetor}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-400">DATA DA INSPEÇÃO:</p>
+                  <p className="font-bold text-gray-800">{data}</p>
+                </div>
+              </div>
+
+              <div className="space-y-6 pt-4">
+                {QUESTIONS.map((q) => (
+                  <div key={q.id} className="pb-4 border-b border-gray-200 space-y-2">
+                    <div className="flex justify-between items-start">
+                      <p className="font-bold text-gray-800 text-sm">
+                        {q.id}. {q.texto}
+                      </p>
+                      <span className={`px-2 py-0.5 text-xs font-black rounded border ${
+                        respostas[q.id].status === 'Conforme' ? 'bg-green-100 text-green-800 border-green-300' :
+                        respostas[q.id].status === 'Não Conforme' ? 'bg-red-100 text-red-800 border-red-300' :
+                        'bg-yellow-100 text-yellow-800 border-yellow-300'
+                      }`}>
+                        {respostas[q.id].status.toUpperCase()}
+                      </span>
+                    </div>
+                    {respostas[q.id].observacoes && (
+                      <p className="text-xs bg-gray-50 p-2 rounded italic text-gray-600 border-l-2 border-gray-400">
+                        <strong>Obs:</strong> {respostas[q.id].observacoes}
+                      </p>
+                    )}
+                    {respostas[q.id].fotos.length > 0 && (
+                      <div className="flex gap-2 pt-1">
+                        {respostas[q.id].fotos.map((foto, idx) => (
+                          <div key={idx} className="w-16 h-16 rounded border overflow-hidden">
+                            <img src={foto.url} alt="anexo" className="w-full h-full object-cover" />
+                          </div>
+                        ))}
+                        <span className="text-[10px] text-gray-400 self-end">({respostas[q.id].fotos.length} fotos anexadas)</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-8 grid grid-cols-2 gap-12 text-center text-xs">
+                <div className="border-t border-gray-400 pt-4">
+                  <p className="font-bold text-gray-800">{inspetor}</p>
+                  <p className="text-gray-400">Assinatura Eletrônica do Inspetor</p>
+                </div>
+                <div className="border-t border-gray-400 pt-4">
+                  <p className="font-bold text-gray-800">Equipe SST Matriz PneuBras</p>
+                  <p className="text-gray-400">Responsável Geral SST / Engenharia</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
