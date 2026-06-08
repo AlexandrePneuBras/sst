@@ -58,7 +58,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     [perguntaId: number]: {
       status: 'Conforme' | 'Não Conforme' | 'Outros';
       observacoes: string;
-      fotos: { name: string; url: string }[];
+      fotos: { name: string; url: string; size: 'medium' | 'large' }[];
     }
   }>(() => {
     const initial: any = {};
@@ -169,7 +169,8 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
             ...prev,
             [qId]: {
               ...prev[qId],
-              fotos: [...currentPhotos, { name: file.name, url: compressedBase64 }]
+              // Padrão definido para 'large' ao anexar
+              fotos: [...currentPhotos, { name: file.name, url: compressedBase64, size: 'large' }]
             }
           };
         });
@@ -177,6 +178,20 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         console.error("Erro ao otimizar imagem:", error);
       }
     }
+  };
+
+  const togglePhotoSize = (qId: number, index: number) => {
+    setRespostas(prev => {
+      const novasFotos = [...prev[qId].fotos];
+      novasFotos[index].size = novasFotos[index].size === 'large' ? 'medium' : 'large';
+      return {
+        ...prev,
+        [qId]: {
+          ...prev[qId],
+          fotos: novasFotos
+        }
+      };
+    });
   };
 
   const removePhoto = (qId: number, index: number) => {
@@ -215,7 +230,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
           pergunta: questionData ? questionData.texto : `Pergunta ${key}`,
           status: respostas[key].status,
           observacoes: respostas[key].observacoes,
-          fotos: respostas[key].fotos.map((f: any) => f.url) 
+          fotos: respostas[key].fotos.map((f: any) => ({ url: f.url, size: f.size })) 
         };
       });
 
@@ -396,10 +411,21 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                   {resp.fotos.map((foto, fIdx) => (
                     <div key={fIdx} className="relative aspect-square border border-slate-200 rounded overflow-hidden group">
                       <img src={foto.url} alt={foto.name} className="w-full h-full object-cover" />
+                      
+                      {/* Botão de Alternância de Tamanho */}
+                      <button
+                        type="button"
+                        onClick={() => togglePhotoSize(q.id, fIdx)}
+                        className="absolute bottom-1 left-1 bg-slate-900/70 text-white text-[8px] font-bold px-1.5 py-0.5 rounded cursor-pointer z-10 hover:bg-slate-800"
+                      >
+                        {foto.size === 'large' ? 'GRANDE' : 'MÉDIO'}
+                      </button>
+
+                      {/* Botão de Excluir original */}
                       <button
                         type="button"
                         onClick={() => removePhoto(q.id, fIdx)}
-                        className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white rounded cursor-pointer"
+                        className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white rounded cursor-pointer z-20"
                       >
                         <Trash2 className="w-4 h-4 text-rose-400" />
                       </button>
@@ -425,9 +451,9 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
           <p className="font-bold text-slate-500 uppercase tracking-wide">Opções Legais e Execução Técnica</p>
           <p>O preenchimento gera arquivamento instantâneo do histórico.</p>
           
-          {/* AQUI ESTÁ O INDICADOR DE PESO DAS FOTOS */}
+          {/* Indicador Visual do Peso Total */}
           {Number(pesoTotal) > 0 && (
-            <p className="mt-2 inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-100">
+            <p className="mt-2 inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-200">
               <FileUp className="w-3.5 h-3.5 mr-1.5" />
               Peso Total dos Anexos: {pesoTotal} MB
             </p>
