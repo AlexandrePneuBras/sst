@@ -76,6 +76,23 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
   const [loading, setLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  // --- NOVA FUNÇÃO: Calcula o peso total das fotos em Megabytes (MB) ---
+  const calcularPesoTotalMB = () => {
+    let totalBytes = 0;
+    Object.values(respostas).forEach((resp) => {
+      resp.fotos.forEach((foto) => {
+        // Ignora o prefixo "data:image/jpeg;base64," para calcular apenas os dados
+        const base64Data = foto.url.split(',')[1] || foto.url;
+        // Fórmula de cálculo de bytes num ficheiro Base64
+        const bytes = (base64Data.length * 3) / 4;
+        totalBytes += bytes;
+      });
+    });
+    return (totalBytes / (1024 * 1024)).toFixed(2);
+  };
+
+  const pesoTotal = calcularPesoTotalMB();
+
   const handleStatusChange = (qId: number, status: 'Conforme' | 'Não Conforme' | 'Outros') => {
     setRespostas(prev => ({
       ...prev,
@@ -90,7 +107,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     }));
   };
 
-  // --- NOVA FUNÇÃO DE COMPRESSÃO DE IMAGENS ---
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -100,7 +116,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         img.src = event.target?.result as string;
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 800; // Reduz o tamanho da foto para máxima leveza
+          const MAX_WIDTH = 800; 
           const MAX_HEIGHT = 800;
           let width = img.width;
           let height = img.height;
@@ -122,7 +138,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           
-          // 0.6 = 60% de qualidade em JPEG (ideal para evitar erros de ligação)
           resolve(canvas.toDataURL('image/jpeg', 0.6)); 
         };
         img.onerror = (err) => reject(err);
@@ -131,7 +146,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     });
   };
 
-  // --- NOVO HANDLE FILE UPLOAD COM COMPRESSÃO ---
   const handleFileUpload = async (qId: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
@@ -180,7 +194,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     setTimeout(() => setNotificacao(null), 5000);
   };
 
-  // Disparo para o Webhook (Bypass CORS e Envio Rápido)
   const handleSubmit = async (enviarEmail: boolean, enviarGDrive: boolean) => {
     if (!unidade.trim()) {
       triggerNotification('erro', 'Por favor, informe a Unidade/Loja.');
@@ -411,6 +424,14 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         <div className="text-xs text-slate-400 leading-normal">
           <p className="font-bold text-slate-500 uppercase tracking-wide">Opções Legais e Execução Técnica</p>
           <p>O preenchimento gera arquivamento instantâneo do histórico.</p>
+          
+          {/* AQUI ESTÁ O INDICADOR DE PESO DAS FOTOS */}
+          {Number(pesoTotal) > 0 && (
+            <p className="mt-2 inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-100">
+              <FileUp className="w-3.5 h-3.5 mr-1.5" />
+              Peso Total dos Anexos: {pesoTotal} MB
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col md:flex-row items-end justify-between gap-4 pt-4 border-t border-slate-100">
