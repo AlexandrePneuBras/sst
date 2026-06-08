@@ -90,7 +90,49 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     }));
   };
 
-  const handleFileUpload = (qId: number, event: React.ChangeEvent<HTMLInputElement>) => {
+  // --- NOVA FUNÇÃO DE COMPRESSÃO DE IMAGENS ---
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800; // Reduz o tamanho da foto para máxima leveza
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // 0.6 = 60% de qualidade em JPEG (ideal para evitar erros de ligação)
+          resolve(canvas.toDataURL('image/jpeg', 0.6)); 
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
+  // --- NOVO HANDLE FILE UPLOAD COM COMPRESSÃO ---
+  const handleFileUpload = async (qId: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
 
@@ -99,9 +141,13 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
       return;
     }
 
-    Array.from(files).forEach((file: any) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
+    triggerNotification('sucesso', 'A otimizar as imagens, aguarde um momento...');
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        const compressedBase64 = await compressImage(file);
+        
         setRespostas(prev => {
           const currentPhotos = prev[qId].fotos;
           if (currentPhotos.length >= 5) return prev;
@@ -109,13 +155,14 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
             ...prev,
             [qId]: {
               ...prev[qId],
-              fotos: [...currentPhotos, { name: file.name, url: reader.result as string }]
+              fotos: [...currentPhotos, { name: file.name, url: compressedBase64 }]
             }
           };
         });
-      };
-      reader.readAsDataURL(file);
-    });
+      } catch (error) {
+        console.error("Erro ao otimizar imagem:", error);
+      }
+    }
   };
 
   const removePhoto = (qId: number, index: number) => {
@@ -133,7 +180,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     setTimeout(() => setNotificacao(null), 5000);
   };
 
-  // Disparo para o Webhook com geração de PDF
+  // Disparo para o Webhook (Bypass CORS e Envio Rápido)
   const handleSubmit = async (enviarEmail: boolean, enviarGDrive: boolean) => {
     if (!unidade.trim()) {
       triggerNotification('erro', 'Por favor, informe a Unidade/Loja.');
@@ -149,7 +196,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     try {
       const mappedRespostas: any = {};
       
-      // Associa o texto da pergunta à resposta para o PDF ser gerado bonito lá no Google
       Object.keys(respostas).forEach((key: any) => {
         const questionData = QUESTIONS.find(q => q.id.toString() === key.toString());
         mappedRespostas[key] = {
@@ -173,11 +219,11 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
       };
 
       // COLE AQUI A URL DO SEU GOOGLE APPS SCRIPT
-      const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec';
+      const endpoint = 'https://script.google.com/macros/s/SUA_URL_AQUI/exec';
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Importante para evitar erro de CORS
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(payload)
       });
 
@@ -388,7 +434,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
               className="px-4 py-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
             >
               <Download className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-              {loading ? 'Processando...' : 'Salvar formato .PDF'}
+              {loading ? 'A processar...' : 'Salvar formato .PDF'}
             </button>
 
             <button
@@ -399,7 +445,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
             >
               <Folder className="w-3.5 h-3.5 mr-1.5" />
-              {loading ? 'Processando...' : 'Enviar para GDrive'}
+              {loading ? 'A processar...' : 'Enviar para GDrive'}
             </button>
 
             <button
@@ -410,7 +456,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
               className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded flex items-center cursor-pointer disabled:opacity-50"
             >
               <Mail className="w-3.5 h-3.5 mr-1.5" />
-              {loading ? 'Processando...' : 'Enviar para E-mail'}
+              {loading ? 'A processar...' : 'Enviar para E-mail'}
             </button>
           </div>
         </div>
