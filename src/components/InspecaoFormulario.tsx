@@ -232,7 +232,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
       };
 
       // COLE AQUI A URL DO SEU GOOGLE APPS SCRIPT
-      const endpoint = 'https://script.google.com/macros/s/SUA_URL_AQUI/exec';
+      const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec';
 
       const res = await fetch(endpoint, {
         method: 'POST',
