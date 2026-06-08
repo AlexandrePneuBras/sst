@@ -426,12 +426,10 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
           <p>O preenchimento gera arquivamento instantâneo do histórico.</p>
           
           {/* AQUI ESTÁ O INDICADOR DE PESO DAS FOTOS */}
-          {Number(pesoTotal) > 0 && (
-            <p className="mt-2 inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-100">
-              <FileUp className="w-3.5 h-3.5 mr-1.5" />
-              Peso Total dos Anexos: {pesoTotal} MB
-            </p>
-          )}
+          {/* Bloco de Debug para ver o contador */}
+          <div className="mt-2 p-2 border border-blue-200 bg-blue-50 text-blue-800 text-xs font-bold rounded">
+          DEBUG: Peso das fotos = {pesoTotal} MB
+          </div>
         </div>
 
         <div className="flex flex-col md:flex-row items-end justify-between gap-4 pt-4 border-t border-slate-100">
