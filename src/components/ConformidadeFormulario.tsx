@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Mail, FolderOpen, Download, AlertTriangle, Plus, Trash2, CheckSquare } from 'lucide-react';
+import { ShieldCheck, Mail, FolderOpen, Download, AlertTriangle, Plus, Trash2, CheckSquare, FileUp } from 'lucide-react';
 import { ConformidadeForm } from '../types';
 
 interface ConformidadeFormProps {
@@ -57,13 +57,16 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
   const [unidade, setUnidade] = useState('');
   const [auditor, setAuditor] = useState(user?.nome || '');
   const [data, setData] = useState(new Date().toISOString().split('T')[0]);
+  
+  // Estado para armazenar o e-mail de destino
+  const [emailDestino, setEmailDestino] = useState(user?.email || '');
 
   // Respostas
   const [respostas, setRespostas] = useState<{
     [perguntaId: number]: {
       status: 'Conforme' | 'Não Conforme' | 'Outros';
       referenciaLegal: string;
-      fotos: { name: string; url: string }[];
+      fotos: { name: string; url: string; size: 'medium' | 'large' }[];
     }
   }>(() => {
     const initial: any = {};
@@ -81,6 +84,21 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
   const [loading, setLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  // --- FUNÇÃO: Calcula o peso total das fotos em Megabytes (MB) ---
+  const calcularPesoTotalMB = () => {
+    let totalBytes = 0;
+    Object.values(respostas).forEach((resp) => {
+      resp.fotos.forEach((foto) => {
+        const base64Data = foto.url.split(',')[1] || foto.url;
+        const bytes = (base64Data.length * 3) / 4;
+        totalBytes += bytes;
+      });
+    });
+    return (totalBytes / (1024 * 1024)).toFixed(2);
+  };
+
+  const pesoTotal = calcularPesoTotalMB();
+
   const handleStatusChange = (qId: number, status: 'Conforme' | 'Não Conforme' | 'Outros') => {
     setRespostas(prev => ({
       ...prev,
@@ -95,31 +113,85 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
     }));
   };
 
-  const handleFileUpload = (qId: number, event: React.ChangeEvent<HTMLInputElement>) => {
+  // --- FUNÇÃO: Compressão de Imagens ---
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800; 
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          resolve(canvas.toDataURL('image/jpeg', 0.6)); 
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
+  const handleFileUpload = async (qId: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files) return;
 
-    if (respostas[qId].fotos.length + files.length > 5) {
-      alert("Máximo de 5 fotos de evidência.");
-      return;
-    }
+    triggerNotification('sucesso', 'A otimizar as imagens, aguarde um momento...');
 
-    Array.from(files).forEach((file: any) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        const compressedBase64 = await compressImage(file);
+        
         setRespostas(prev => {
           const currentPhotos = prev[qId].fotos;
-          if (currentPhotos.length >= 5) return prev;
           return {
             ...prev,
             [qId]: {
               ...prev[qId],
-              fotos: [...currentPhotos, { name: file.name, url: reader.result as string }]
+              fotos: [...currentPhotos, { name: file.name, url: compressedBase64, size: 'medium' }]
             }
           };
         });
+      } catch (error) {
+        console.error("Erro ao otimizar imagem:", error);
+      }
+    }
+  };
+
+  // --- FUNÇÃO: Alternar tamanho da foto no PDF ---
+  const togglePhotoSize = (qId: number, index: number) => {
+    setRespostas(prev => {
+      const novasFotos = [...prev[qId].fotos];
+      novasFotos[index].size = novasFotos[index].size === 'large' ? 'medium' : 'large';
+      return {
+        ...prev,
+        [qId]: {
+          ...prev[qId],
+          fotos: novasFotos
+        }
       };
-      reader.readAsDataURL(file);
     });
   };
 
@@ -144,44 +216,61 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
       return;
     }
 
+    if (enviarEmail && !emailDestino.trim()) {
+      triggerNotification('erro', 'Por favor, informe o e-mail de destino.');
+      return;
+    }
+
     setLoading(true);
     try {
       const mappedRespostas: any = {};
+      
       Object.keys(respostas).forEach((key: any) => {
+        const questionData = QUESTIONS.find(q => q.id.toString() === key.toString());
         mappedRespostas[key] = {
+          pergunta: questionData ? `${questionData.nrReference} - ${questionData.texto}` : `Pergunta ${key}`,
           status: respostas[key].status,
-          referenciaLegal: respostas[key].referenciaLegal,
-          fotos: respostas[key].fotos.map((f: any) => f.url)
+          // Mapeamos a "referenciaLegal" para "observacoes" para o backend processar na tabela
+          observacoes: respostas[key].referenciaLegal ? `Ref: ${respostas[key].referenciaLegal}` : '',
+          fotos: respostas[key].fotos.map((f: any) => ({ url: f.url, size: f.size }))
         };
       });
 
-      const res = await fetch('/api/conformidades', {
+      const payload = {
+        tipoDoc: 'Conformidade', // Identificador para o backend
+        unidade,
+        inspetor: auditor, // O backend lê "inspetor", mapeamos o "auditor" para cá
+        data,
+        respostas: mappedRespostas,
+        enviarEmail,
+        enviarGDrive,
+        emailDestino: emailDestino,
+        pastaDestinoUrl: config.gdriveFormsFolderUrl
+      };
+
+      const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec';
+
+      const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          unidade,
-          auditor,
-          data,
-          respostas: mappedRespostas,
-          enviadoEmail: enviarEmail,
-          enviadoGDrive: enviarGDrive
-        })
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Resolve o problema de CORS
+        body: JSON.stringify(payload)
       });
 
-      if (res.ok) {
-        let msg = "Auditoria de Conformidade salva com sucesso!";
-        if (enviarEmail && enviarGDrive) {
-          msg = `Conformidade registrada! Documento PDF enviado para ${user?.email || 'adm@pneubras.com.br'} e arquivado no GDrive de SST.`;
-        } else if (enviarEmail) {
-          msg = `Salvo no servidor com cópia automática para o e-mail administrativo: ${user?.email || 'adm@pneubras.com.br'}`;
-        } else if (enviarGDrive) {
-          msg = `Salvo de forma legal e arquivado no Google Drive.`;
-        }
-        triggerNotification('sucesso', msg);
-        onSaved();
-      } else {
-        triggerNotification('erro', 'Falha ao salvar auditoria no servidor de SST.');
+      if (!res.ok) {
+        throw new Error('Falha na resposta do webhook');
       }
+
+      let msg = "Auditoria de Conformidade salva com sucesso!";
+      if (enviarEmail && enviarGDrive) {
+        msg = `Conformidade registada! Documento PDF enviado para ${emailDestino} e arquivado no GDrive.`;
+      } else if (enviarEmail) {
+        msg = `Salvo com cópia enviada para o e-mail: ${emailDestino}`;
+      } else if (enviarGDrive) {
+        msg = `Salvo de forma legal e arquivado no Google Drive.`;
+      }
+      
+      triggerNotification('sucesso', msg);
+      onSaved();
     } catch (e) {
       triggerNotification('erro', 'Falha de comunicação com a Rede PneuBras.');
     } finally {
@@ -249,7 +338,7 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
               value={auditor}
               onChange={(e) => setAuditor(e.target.value)}
               placeholder="Ex: Engenheiro de Segurança"
-              className="w-full px-3 py-1.5 text-xs border border-slate-200 bg-slate-50 text-slate-500 rounded outline-none"
+              className="w-full px-3 py-1.5 text-xs border border-slate-200 bg-slate-50 text-slate-500 rounded outline-none block"
               disabled
             />
           </div>
@@ -316,48 +405,53 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
                   id={`legal-ref-${q.id}`}
                   value={resp.referenciaLegal}
                   onChange={(e) => handleRefSelectionChange(q.id, e.target.value)}
-                  placeholder="Referência do documento, número de registro, validade ou plano de ação..."
+                  placeholder="Referência do documento, número de registo, validade ou plano de ação..."
                   className="w-full px-3 py-2 border border-slate-200 rounded text-xs text-slate-800 outline-none focus:border-slate-800"
                 />
               </div>
 
-              {/* Photo Upload evidence block */}
+              {/* Photo Upload evidence block (Ilimitado) */}
               <div className="pt-2 space-y-2">
                 <span className="block text-[10px] font-bold text-slate-400 uppercase flex items-center">
                   <CheckSquare className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                  Evidências Documentais / Fotos (Máx. 5)
+                  Evidências Documentais / Fotos
                 </span>
 
                 <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
                   {resp.fotos.map((foto, fIdx) => (
                     <div key={fIdx} className="relative aspect-square border border-slate-200 rounded overflow-hidden group">
                       <img src={foto.url} alt={foto.name} className="w-full h-full object-cover" />
+                      
+                      {/* Botão de Alternância de Tamanho */}
+                      <button
+                        type="button"
+                        onClick={() => togglePhotoSize(q.id, fIdx)}
+                        className={`absolute bottom-1 left-1 text-[8px] font-bold px-1.5 py-0.5 rounded cursor-pointer z-10 ${foto.size === 'large' ? 'bg-emerald-600 text-white' : 'bg-slate-900/70 text-white hover:bg-slate-800'}`}
+                      >
+                        {foto.size === 'large' ? 'GRANDE' : 'MÉDIO'}
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => removePhoto(q.id, fIdx)}
-                        className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white rounded cursor-pointer"
+                        className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white rounded cursor-pointer z-20"
                       >
                         <Trash2 className="w-4 h-4 text-rose-400" />
                       </button>
-                      <div className="absolute bottom-1 left-1 right-1 truncate text-[8px] text-white bg-slate-900/40 px-1 rounded text-center">
-                        ANEXO {fIdx + 1}
-                      </div>
                     </div>
                   ))}
 
-                  {resp.fotos.length < 5 && (
-                    <label className="aspect-square border border-dashed border-slate-200 rounded-lg hover:border-slate-400 flex flex-col items-center justify-center cursor-pointer transition-colors p-2 text-center group">
-                      <Plus className="w-5 h-5 text-slate-405 text-slate-450 text-slate-400 group-hover:text-slate-600 mb-1" />
-                      <span className="text-[10px] text-slate-400 font-bold group-hover:text-slate-600">ANEXAR FOTO</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={(e) => handleFileUpload(q.id, e)}
-                        className="hidden"
-                      />
-                    </label>
-                  )}
+                  <label className="aspect-square border border-dashed border-slate-200 rounded-lg hover:border-slate-400 flex flex-col items-center justify-center cursor-pointer transition-colors p-2 text-center group">
+                    <Plus className="w-5 h-5 text-slate-405 text-slate-450 text-slate-400 group-hover:text-slate-600 mb-1" />
+                    <span className="text-[10px] text-slate-400 font-bold group-hover:text-slate-600">ANEXAR FOTO</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => handleFileUpload(q.id, e)}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
               </div>
             </div>
@@ -366,44 +460,65 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
       </div>
 
       {/* Action panel footer */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="text-xs text-slate-400 text-center sm:text-left leading-normal">
-          <p className="font-bold text-slate-500 uppercase tracking-wide">Garantia de Respaldo Legal (Auditoria do Trabalho)</p>
+      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col gap-5">
+        <div className="text-xs text-slate-400 leading-normal">
+          <p className="font-bold text-slate-500 uppercase tracking-wide">Opções Legais e Execução Técnica</p>
           <p>O preenchimento documenta que as normas e NR-Portarias federais estão em vigor.</p>
+          
+          {Number(pesoTotal) > 0 && (
+            <p className="mt-2 inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-200">
+              <FileUp className="w-3.5 h-3.5 mr-1.5" />
+              Peso Total dos Anexos: {pesoTotal} MB
+            </p>
+          )}
         </div>
 
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
-          <button
-            type="button"
-            id="btn-conformidade-imprimir-pdf"
-            onClick={handlePrint}
-            className="px-4 py-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded flex items-center cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-            Salvar formato .PDF
-          </button>
+        <div className="flex flex-col md:flex-row items-end justify-between gap-4 pt-4 border-t border-slate-100">
+          <div className="w-full md:w-1/2">
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">E-mail para envio do relatório:</label>
+            <input
+              type="email"
+              value={emailDestino}
+              onChange={(e) => setEmailDestino(e.target.value)}
+              placeholder="informe.o.email@pneubras.com.br"
+              className="w-full px-3 py-2 text-xs border border-slate-300 rounded outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+            />
+          </div>
 
-          <button
-            type="button"
-            id="btn-conformidade-submit-gdrive"
-            disabled={loading}
-            onClick={() => handleSubmit(false, true)}
-            className="px-4 py-2 bg-slate-105 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
-          >
-            <FolderOpen className="w-3.5 h-3.5 mr-1.5" />
-            Enviar para GDrive
-          </button>
+          <div className="flex flex-wrap gap-2 w-full md:w-auto justify-end">
+            <button
+              type="button"
+              id="btn-conformidade-imprimir-pdf"
+              disabled={loading}
+              onClick={handlePrint}
+              className="px-4 py-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
+            >
+              <Download className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
+              {loading ? 'A processar...' : 'Salvar formato .PDF'}
+            </button>
 
-          <button
-            type="button"
-            id="btn-conformidade-submit-email"
-            disabled={loading}
-            onClick={() => handleSubmit(true, false)}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded flex items-center cursor-pointer disabled:opacity-50"
-          >
-            <Mail className="w-3.5 h-3.5 mr-1.5" />
-            Enviar para E-mail
-          </button>
+            <button
+              type="button"
+              id="btn-conformidade-submit-gdrive"
+              disabled={loading}
+              onClick={() => handleSubmit(false, true)}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
+            >
+              <FolderOpen className="w-3.5 h-3.5 mr-1.5" />
+              {loading ? 'A processar...' : 'Enviar para GDrive'}
+            </button>
+
+            <button
+              type="button"
+              id="btn-conformidade-submit-email"
+              disabled={loading}
+              onClick={() => handleSubmit(true, false)}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded flex items-center cursor-pointer disabled:opacity-50"
+            >
+              <Mail className="w-3.5 h-3.5 mr-1.5" />
+              {loading ? 'A processar...' : 'Enviar para E-mail'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -461,13 +576,12 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
                     </p>
                   )}
                   {respostas[q.id].fotos.length > 0 && (
-                    <div className="flex gap-2 pt-1">
+                    <div className="flex flex-wrap gap-2 pt-1">
                       {respostas[q.id].fotos.map((foto, idx) => (
-                        <div key={idx} className="w-16 h-16 rounded border overflow-hidden">
-                          <img src={foto.url} alt="anexo" className="w-full h-full object-cover" />
+                        <div key={idx} className={`rounded border overflow-hidden ${foto.size === 'large' ? 'w-full h-auto' : 'w-32 h-32'}`}>
+                          <img src={foto.url} alt="anexo" className="w-full h-full object-contain" />
                         </div>
                       ))}
-                      <span className="text-[10px] text-gray-400 self-end">({respostas[q.id].fotos.length} comprovantes indexados)</span>
                     </div>
                   )}
                 </div>
