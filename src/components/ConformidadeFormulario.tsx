@@ -58,10 +58,8 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
   const [auditor, setAuditor] = useState(user?.nome || '');
   const [data, setData] = useState(new Date().toISOString().split('T')[0]);
   
-  // Estado para armazenar o e-mail de destino
   const [emailDestino, setEmailDestino] = useState(user?.email || '');
 
-  // Respostas
   const [respostas, setRespostas] = useState<{
     [perguntaId: number]: {
       status: 'Conforme' | 'Não Conforme' | 'Outros';
@@ -84,7 +82,6 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
   const [loading, setLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  // --- FUNÇÃO: Calcula o peso total das fotos em Megabytes (MB) ---
   const calcularPesoTotalMB = () => {
     let totalBytes = 0;
     Object.values(respostas).forEach((resp) => {
@@ -113,7 +110,6 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
     }));
   };
 
-  // --- FUNÇÃO: Compressão de Imagens ---
   const compressImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -180,7 +176,6 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
     }
   };
 
-  // --- FUNÇÃO: Alternar tamanho da foto no PDF ---
   const togglePhotoSize = (qId: number, index: number) => {
     setRespostas(prev => {
       const novasFotos = [...prev[qId].fotos];
@@ -230,16 +225,15 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
         mappedRespostas[key] = {
           pergunta: questionData ? `${questionData.nrReference} - ${questionData.texto}` : `Pergunta ${key}`,
           status: respostas[key].status,
-          // Mapeamos a "referenciaLegal" para "observacoes" para o backend processar na tabela
           observacoes: respostas[key].referenciaLegal ? `Ref: ${respostas[key].referenciaLegal}` : '',
           fotos: respostas[key].fotos.map((f: any) => ({ url: f.url, size: f.size }))
         };
       });
 
       const payload = {
-        tipoDoc: 'Conformidade', // Identificador para o backend
+        tipoDoc: 'Conformidade', 
         unidade,
-        inspetor: auditor, // O backend lê "inspetor", mapeamos o "auditor" para cá
+        inspetor: auditor, 
         data,
         respostas: mappedRespostas,
         enviarEmail,
@@ -252,7 +246,7 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
 
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Resolve o problema de CORS
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
         body: JSON.stringify(payload)
       });
 
@@ -272,7 +266,7 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
       triggerNotification('sucesso', msg);
       onSaved();
     } catch (e) {
-      triggerNotification('erro', 'Falha de comunicação com a Rede PneuBras.');
+      triggerNotification('erro', 'Falha de comunicação com o servidor.');
     } finally {
       setLoading(false);
     }
@@ -280,14 +274,15 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
 
   const handlePrint = () => {
     if (!unidade.trim()) {
-      triggerNotification('erro', 'Insira o nome da Unidade/Loja para gerar a peça relatorial de Conformidade.');
+      triggerNotification('erro', 'Insira o nome da Unidade/Loja para gerar o documento PDF.');
       return;
     }
     setIsExporting(true);
+    // Dá um tempo maior para as imagens renderizarem antes de abrir a janela de impressão
     setTimeout(() => {
       window.print();
       setIsExporting(false);
-    }, 500);
+    }, 800);
   };
 
   return (
@@ -502,7 +497,7 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
               id="btn-conformidade-submit-gdrive"
               disabled={loading}
               onClick={() => handleSubmit(false, true)}
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 bg-slate-105 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
             >
               <FolderOpen className="w-3.5 h-3.5 mr-1.5" />
               {loading ? 'A processar...' : 'Enviar para GDrive'}
@@ -522,84 +517,116 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
         </div>
       </div>
 
-      {/* Hidden printable view layout */}
+      {/* Hidden printable view layout - FIXED para não duplicar folhas */}
       {isExporting && (
-        <div className="fixed inset-0 bg-white z-[9999] p-8 overflow-y-auto" id="conf-printable-pdf-document">
-          <div className="border border-gray-300 p-8 rounded-lg max-w-4xl mx-auto space-y-6">
-            <div className="flex justify-between items-center pb-6 border-b border-gray-300">
-              <div>
-                <h1 className="text-2xl font-black tracking-tight text-indigo-900">RELATÓRIO DE CONFORMIDADE DOCUMENTAL</h1>
-                <p className="text-xs text-gray-500 uppercase font-mono tracking-wider">PneuBras - Auditoria Legal de Ativos e Normas Portaria do Trabalho</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-bold text-gray-800">CÓDIGO: PB-CONF-{Date.now().toString().slice(-4)}</p>
-                <p className="text-xs text-gray-400">Gerado: {data}</p>
-              </div>
-            </div>
+        <>
+          <style type="text/css">
+            {`
+              @media print {
+                /* Esconde o formulário normal que causava o "fantasma" de folhas em branco */
+                #full-conformidade-container > div:not(#conf-printable-pdf-document) {
+                  display: none !important;
+                }
+                
+                /* Remove as propriedades 'fixed' que causam a repetição tipo carimbo */
+                #conf-printable-pdf-document {
+                  position: relative !important;
+                  display: block !important;
+                  width: 100% !important;
+                  height: auto !important;
+                  overflow: visible !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
+                }
 
-            <div className="grid grid-cols-3 gap-6 text-sm py-4 bg-indigo-50/50 p-4 rounded border border-indigo-100">
-              <div>
-                <p className="text-xs font-semibold text-indigo-400">UNIDADE / LOJA:</p>
-                <p className="font-bold text-indigo-900">{unidade}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-indigo-400">AUDITOR RESPONSÁVEL:</p>
-                <p className="font-bold text-indigo-900">{auditor}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-indigo-400">DATA DA AUDITORIA:</p>
-                <p className="font-bold text-indigo-900">{data}</p>
-              </div>
-            </div>
-
-            <div className="space-y-6 pt-4">
-              {QUESTIONS.map((q) => (
-                <div key={q.id} className="pb-4 border-b border-gray-200 space-y-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-bold text-gray-800 text-sm">
-                        {q.id}. {q.texto}
-                      </p>
-                      <p className="text-[10px] text-indigo-600 font-mono italic uppercase">REF: {q.nrReference}</p>
-                    </div>
-                    <span className={`px-2 py-0.5 text-xs font-black rounded border ${
-                      respostas[q.id].status === 'Conforme' ? 'bg-green-100 text-green-800 border-green-300' :
-                      respostas[q.id].status === 'Não Conforme' ? 'bg-red-100 text-red-800 border-red-300' :
-                      'bg-yellow-100 text-yellow-800 border-yellow-300'
-                    }`}>
-                      {respostas[q.id].status.toUpperCase()}
-                    </span>
-                  </div>
-                  {respostas[q.id].referenciaLegal && (
-                    <p className="text-xs bg-gray-50 p-2 rounded text-gray-600 border-l-2 border-indigo-400">
-                      <strong>Ficha / Vistoria:</strong> {respostas[q.id].referenciaLegal}
-                    </p>
-                  )}
-                  {respostas[q.id].fotos.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {respostas[q.id].fotos.map((foto, idx) => (
-                        <div key={idx} className={`rounded border overflow-hidden ${foto.size === 'large' ? 'w-full h-auto' : 'w-32 h-32'}`}>
-                          <img src={foto.url} alt="anexo" className="w-full h-full object-contain" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                /* Garante que o bloco da pergunta não é cortado ao meio na transição de folhas */
+                .page-break-avoid {
+                  page-break-inside: avoid !important;
+                  break-inside: avoid !important;
+                }
+              }
+            `}
+          </style>
+          
+          <div className="fixed inset-0 bg-white z-[9999] p-8 overflow-y-auto" id="conf-printable-pdf-document">
+            <div className="border border-gray-300 p-8 rounded-lg max-w-4xl mx-auto space-y-6">
+              <div className="flex justify-between items-center pb-6 border-b border-gray-300">
+                <div>
+                  <h1 className="text-2xl font-black tracking-tight text-indigo-900">RELATÓRIO DE CONFORMIDADE DOCUMENTAL</h1>
+                  <p className="text-xs text-gray-500 uppercase font-mono tracking-wider">PneuBras - Auditoria Legal de Ativos e Normas Portaria do Trabalho</p>
                 </div>
-              ))}
-            </div>
-
-            <div className="pt-8 grid grid-cols-2 gap-12 text-center text-xs">
-              <div className="border-t border-gray-400 pt-4">
-                <p className="font-bold text-gray-800">{auditor}</p>
-                <p className="text-gray-400">Assinatura Certificada do Auditor</p>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-gray-800">CÓDIGO: PB-CONF-{Date.now().toString().slice(-4)}</p>
+                  <p className="text-xs text-gray-400">Gerado: {data}</p>
+                </div>
               </div>
-              <div className="border-t border-gray-400 pt-4">
-                <p className="font-bold text-gray-800">Diretoria Jurídica / SST PneuBras</p>
-                <p className="text-gray-400">Selo de Auditoria Federal NR</p>
+
+              <div className="grid grid-cols-3 gap-6 text-sm py-4 bg-indigo-50/50 p-4 rounded border border-indigo-100">
+                <div>
+                  <p className="text-xs font-semibold text-indigo-400">UNIDADE / LOJA:</p>
+                  <p className="font-bold text-indigo-900">{unidade}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-indigo-400">AUDITOR RESPONSÁVEL:</p>
+                  <p className="font-bold text-indigo-900">{auditor}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-indigo-400">DATA DA AUDITORIA:</p>
+                  <p className="font-bold text-indigo-900">{data}</p>
+                </div>
+              </div>
+
+              <div className="space-y-6 pt-4">
+                {QUESTIONS.map((q) => (
+                  <div key={q.id} className="pb-4 border-b border-gray-200 space-y-2 page-break-avoid">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-bold text-gray-800 text-sm">
+                          {q.id}. {q.texto}
+                        </p>
+                        <p className="text-[10px] text-indigo-600 font-mono italic uppercase">REF: {q.nrReference}</p>
+                      </div>
+                      <span className={`px-2 py-0.5 text-xs font-black rounded border ${
+                        respostas[q.id].status === 'Conforme' ? 'bg-green-100 text-green-800 border-green-300' :
+                        respostas[q.id].status === 'Não Conforme' ? 'bg-red-100 text-red-800 border-red-300' :
+                        'bg-yellow-100 text-yellow-800 border-yellow-300'
+                      }`}>
+                        {respostas[q.id].status.toUpperCase()}
+                      </span>
+                    </div>
+                    {respostas[q.id].referenciaLegal && (
+                      <p className="text-xs bg-gray-50 p-2 rounded text-gray-600 border-l-2 border-indigo-400">
+                        <strong>Ficha / Vistoria:</strong> {respostas[q.id].referenciaLegal}
+                      </p>
+                    )}
+                    
+                    {/* Renderização condicional para PDF gerado via Print */}
+                    {respostas[q.id].fotos.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {respostas[q.id].fotos.map((foto, idx) => (
+                          <div key={idx} className={`rounded border overflow-hidden ${foto.size === 'large' ? 'w-full h-auto' : 'w-48 h-48'}`}>
+                            <img src={foto.url} alt="anexo" className="w-full h-full object-contain" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-8 grid grid-cols-2 gap-12 text-center text-xs page-break-avoid">
+                <div className="border-t border-gray-400 pt-4">
+                  <p className="font-bold text-gray-800">{auditor}</p>
+                  <p className="text-gray-400">Assinatura Certificada do Auditor</p>
+                </div>
+                <div className="border-t border-gray-400 pt-4">
+                  <p className="font-bold text-gray-800">Diretoria Jurídica / SST PneuBras</p>
+                  <p className="text-gray-400">Selo de Auditoria Federal NR</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
