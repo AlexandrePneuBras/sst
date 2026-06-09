@@ -51,7 +51,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
   const [inspetor, setInspetor] = useState(user?.nome || '');
   const [data, setData] = useState(new Date().toISOString().split('T')[0]);
   
-  // Estado para armazenar o e-mail de destino escolhido pelo Gestor
   const [emailDestino, setEmailDestino] = useState(user?.email || '');
   
   const [respostas, setRespostas] = useState<{
@@ -76,14 +75,11 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
   const [loading, setLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
-  // --- NOVA FUNÇÃO: Calcula o peso total das fotos em Megabytes (MB) ---
   const calcularPesoTotalMB = () => {
     let totalBytes = 0;
     Object.values(respostas).forEach((resp) => {
       resp.fotos.forEach((foto) => {
-        // Ignora o prefixo "data:image/jpeg;base64," para calcular apenas os dados
         const base64Data = foto.url.split(',')[1] || foto.url;
-        // Fórmula de cálculo de bytes num ficheiro Base64
         const bytes = (base64Data.length * 3) / 4;
         totalBytes += bytes;
       });
@@ -150,11 +146,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
     const files = event.target.files;
     if (!files) return;
 
-    if (respostas[qId].fotos.length + files.length > 5) {
-      alert("Máximo de 5 fotos por pergunta.");
-      return;
-    }
-
     triggerNotification('sucesso', 'A otimizar as imagens, aguarde um momento...');
 
     for (let i = 0; i < files.length; i++) {
@@ -164,13 +155,12 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         
         setRespostas(prev => {
           const currentPhotos = prev[qId].fotos;
-          if (currentPhotos.length >= 5) return prev;
           return {
             ...prev,
             [qId]: {
               ...prev[qId],
-              // Padrão definido para 'large' ao anexar
-              fotos: [...currentPhotos, { name: file.name, url: compressedBase64, size: 'large' }]
+              // A imagem entra por defeito como 'medium' (2 por linha no PDF)
+              fotos: [...currentPhotos, { name: file.name, url: compressedBase64, size: 'medium' }]
             }
           };
         });
@@ -246,7 +236,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         pastaDestinoUrl: config.gdriveFormsFolderUrl
       };
 
-      // COLE AQUI A URL DO SEU GOOGLE APPS SCRIPT
+      // --- ATENÇÃO: COLE A SUA URL AQUI ---
       const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec';
 
       const res = await fetch(endpoint, {
@@ -404,7 +394,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
               <div className="pt-2 space-y-2">
                 <span className="block text-[10px] font-bold text-slate-400 uppercase flex items-center">
                   <FileUp className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                  Evidências Fotográficas / Fotos (Máx. 5)
+                  Evidências Fotográficas / Fotos
                 </span>
                 
                 <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
@@ -412,16 +402,16 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                     <div key={fIdx} className="relative aspect-square border border-slate-200 rounded overflow-hidden group">
                       <img src={foto.url} alt={foto.name} className="w-full h-full object-cover" />
                       
-                      {/* Botão de Alternância de Tamanho */}
+                      {/* Botão de Alternância de Tamanho (MÉDIO / GRANDE) */}
                       <button
                         type="button"
                         onClick={() => togglePhotoSize(q.id, fIdx)}
-                        className="absolute bottom-1 left-1 bg-slate-900/70 text-white text-[8px] font-bold px-1.5 py-0.5 rounded cursor-pointer z-10 hover:bg-slate-800"
+                        className={`absolute bottom-1 left-1 text-[8px] font-bold px-1.5 py-0.5 rounded cursor-pointer z-10 ${foto.size === 'large' ? 'bg-emerald-600 text-white' : 'bg-slate-900/70 text-white hover:bg-slate-800'}`}
                       >
                         {foto.size === 'large' ? 'GRANDE' : 'MÉDIO'}
                       </button>
 
-                      {/* Botão de Excluir original */}
+                      {/* Botão de Excluir */}
                       <button
                         type="button"
                         onClick={() => removePhoto(q.id, fIdx)}
@@ -432,13 +422,12 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                     </div>
                   ))}
 
-                  {resp.fotos.length < 5 && (
-                    <label className="aspect-square border border-dashed border-slate-200 rounded-lg hover:border-slate-400 flex flex-col items-center justify-center cursor-pointer transition-colors p-2 text-center group">
-                      <Plus className="w-5 h-5 text-slate-400 group-hover:text-slate-650 mb-1" />
-                      <span className="text-[10px] text-slate-400 font-bold group-hover:text-slate-650">ANEXAR FOTO</span>
-                      <input type="file" accept="image/*" multiple onChange={(e) => handleFileUpload(q.id, e)} className="hidden" />
-                    </label>
-                  )}
+                  {/* Input de anexo flexível (sem limite) */}
+                  <label className="aspect-square border border-dashed border-slate-200 rounded-lg hover:border-slate-400 flex flex-col items-center justify-center cursor-pointer transition-colors p-2 text-center group">
+                    <Plus className="w-5 h-5 text-slate-400 group-hover:text-slate-650 mb-1" />
+                    <span className="text-[10px] text-slate-400 font-bold group-hover:text-slate-650">ANEXAR FOTO</span>
+                    <input type="file" accept="image/*" multiple onChange={(e) => handleFileUpload(q.id, e)} className="hidden" />
+                  </label>
                 </div>
               </div>
             </div>
@@ -451,7 +440,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
           <p className="font-bold text-slate-500 uppercase tracking-wide">Opções Legais e Execução Técnica</p>
           <p>O preenchimento gera arquivamento instantâneo do histórico.</p>
           
-          {/* Indicador Visual do Peso Total */}
           {Number(pesoTotal) > 0 && (
             <p className="mt-2 inline-flex items-center px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-200">
               <FileUp className="w-3.5 h-3.5 mr-1.5" />
@@ -475,7 +463,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
           <div className="flex flex-wrap gap-2 w-full md:w-auto justify-end">
             <button
               type="button"
-              id="btn-inspecao-imprimir-pdf"
               disabled={loading}
               onClick={handlePrint}
               className="px-4 py-2 border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
@@ -486,7 +473,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
 
             <button
               type="button"
-              id="btn-inspecao-submit-gdrive"
               disabled={loading}
               onClick={() => handleSubmit(false, true)}
               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold rounded flex items-center cursor-pointer disabled:opacity-50"
@@ -497,7 +483,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
 
             <button
               type="button"
-              id="btn-inspecao-submit-email"
               disabled={loading}
               onClick={() => handleSubmit(true, false)}
               className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded flex items-center cursor-pointer disabled:opacity-50"
