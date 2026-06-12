@@ -88,7 +88,7 @@ export default function ColaboradorHome({
       className="w-full min-h-screen flex flex-col"
       style={{ 
         backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.85)), url(${imgFundo})`,
-        backgroundSize: 'cover',
+        backgroundSize: '100% auto',
         // 'left top' garante que a Logo do canto superior esquerdo nunca é cortada
         backgroundPosition: 'left top', 
         backgroundRepeat: 'no-repeat',
