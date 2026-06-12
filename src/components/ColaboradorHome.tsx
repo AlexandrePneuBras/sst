@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { AlertOctagon, CheckCircle, ExternalLink, ArrowRight, Lock } from 'lucide-react';
 import { Noticia, PilulaTreinamento, QuizRespostum } from '../types';
 
+// IMPORTAÇÃO DA IMAGEM DO PAPEL DE PAREDE
+// Se o seu ColaboradorHome.tsx estiver na pasta src/components e a imagem na pasta src, usa-se '../papel.png'
+import imgFundo from '../papel.png';
+
 interface ColaboradorHomeProps {
   user: any;
   noticias: Noticia[];
   pilulas: PilulaTreinamento[];
   respostasQuiz: QuizRespostum[];
   onSubmitQuiz: (pillId: string, acerto: boolean) => Promise<void>;
-  // Propriedade recebida da barra lateral
   activeView: 'noticias' | 'formularios' | 'dialogos'; 
 }
 
@@ -77,24 +80,19 @@ export default function ColaboradorHome({
     return { status: 'Pendente' as const };
   };
 
-  // Limpa o formulário ativo caso o usuário clique em outra aba na barra lateral
   useEffect(() => {
     setActiveFormLayout(null);
   }, [activeView]);
 
   return (
-    /* --- INÍCIO DO PAPEL DE PAREDE --- */
     <div 
       className="w-full min-h-screen bg-cover bg-center bg-fixed bg-no-repeat p-4 sm:p-6 lg:p-8"
       style={{ 
-        // ATENÇÃO: Substitua '/imagem_login.jpg' pelo caminho real onde a imagem está guardada no seu projeto
-        // Exemplo: se estiver na pasta public, use "url('/image_a30131.jpg')"
-        backgroundImage: "linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url('../papel.png')" 
+        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url(${imgFundo})`
       }}
     >
       <div className="space-y-6 max-w-7xl mx-auto">
-      /* --- FIM DA CONFIGURAÇÃO DO PAPEL DE PAREDE --- */
-
+        
         {/* Banner de Boas Vindas */}
         <div className="bg-white rounded-xl p-6 text-slate-850 border border-slate-200 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-1">
@@ -113,8 +111,6 @@ export default function ColaboradorHome({
           </div>
         </div>
 
-        {/* ÁREA DE CONTEÚDO DINÂMICO */}
-        
         {/* 1. NOTÍCIAS SST SECTION */}
         {activeView === 'noticias' && (
           <div className="bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 shadow-xl p-6 space-y-6">
