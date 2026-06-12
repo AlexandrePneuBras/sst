@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Users, Newspaper, Video, GraduationCap, Plus, Trash2, Shield, Eye, ShieldAlert, Calendar, ArrowRight, Ban, CheckCircle } from 'lucide-react';
 import { Colaborador, Noticia, PilulaTreinamento, QuizRespostum } from '../types';
 
+// Importação da imagem do papel de parede (Ajuste o caminho se a imagem não estiver na pasta src raiz)
+import imgFundo from '../papel.png';
+
 interface GestaoAcessosProps {
   colaboradores: Colaborador[];
   noticias: Noticia[];
@@ -186,7 +189,15 @@ export default function GestaoAcessos({
   });
 
   return (
-    <div className="space-y-6">
+    <div 
+      className="w-full min-h-screen p-4 sm:p-6 lg:p-8 space-y-6 rounded-2xl"
+      style={{ 
+        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.85)), url(${imgFundo})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'left top', 
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       {/* Dynamic Alerts */}
       {notif && (
         <div className="p-3 bg-slate-900 text-white rounded text-xs font-mono fixed right-6 top-6 shadow-xl z-50 animate-fade-in border border-slate-950">
@@ -194,12 +205,12 @@ export default function GestaoAcessos({
         </div>
       )}
 
-      {/* Internal Navigation Subtabs */}
-      <div className="border-b border-slate-200 flex flex-wrap gap-1">
+      {/* Internal Navigation Subtabs (Wrapped in a white card for readability over the dark background) */}
+      <div className="bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 p-2 shadow-sm flex flex-wrap gap-1">
         <button
           onClick={() => setActiveSubTab('colaboradores')}
-          className={`px-4 py-2 border-b-2 text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-            activeSubTab === 'colaboradores' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-900'
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+            activeSubTab === 'colaboradores' ? 'bg-slate-100 text-slate-900 border border-slate-200 shadow-sm' : 'border border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
           <Users className="w-4 h-4" />
@@ -208,8 +219,8 @@ export default function GestaoAcessos({
 
         <button
           onClick={() => setActiveSubTab('noticias')}
-          className={`px-4 py-2 border-b-2 text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-            activeSubTab === 'noticias' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-900'
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+            activeSubTab === 'noticias' ? 'bg-slate-100 text-slate-900 border border-slate-200 shadow-sm' : 'border border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
           <Newspaper className="w-4 h-4" />
@@ -218,8 +229,8 @@ export default function GestaoAcessos({
 
         <button
           onClick={() => setActiveSubTab('pilulas')}
-          className={`px-4 py-2 border-b-2 text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-            activeSubTab === 'pilulas' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-900'
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+            activeSubTab === 'pilulas' ? 'bg-slate-100 text-slate-900 border border-slate-200 shadow-sm' : 'border border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
           <Video className="w-4 h-4" />
@@ -228,8 +239,8 @@ export default function GestaoAcessos({
 
         <button
           onClick={() => setActiveSubTab('relatorios')}
-          className={`px-4 py-2 border-b-2 text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
-            activeSubTab === 'relatorios' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400 hover:text-slate-900'
+          className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center space-x-2 cursor-pointer ${
+            activeSubTab === 'relatorios' ? 'bg-slate-100 text-slate-900 border border-slate-200 shadow-sm' : 'border border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
           <GraduationCap className="w-4 h-4" />
@@ -243,10 +254,10 @@ export default function GestaoAcessos({
       {activeSubTab === 'colaboradores' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* List and filters */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm lg:col-span-2 space-y-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-xl lg:col-span-2 space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-sm font-bold text-gray-800">Base Colaboradores SST</h2>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-bold">
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-bold border border-slate-200">
                 {filteredColaboradores.length} listados
               </span>
             </div>
@@ -258,28 +269,28 @@ export default function GestaoAcessos({
                 placeholder="Filtrar por nome..."
                 value={filterNome}
                 onChange={(e) => setFilterNome(e.target.value)}
-                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-red-300"
+                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-emerald-500"
               />
               <input
                 type="text"
                 placeholder="Filtrar por e-mail..."
                 value={filterEmail}
                 onChange={(e) => setFilterEmail(e.target.value)}
-                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-red-300"
+                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-emerald-500"
               />
               <input
                 type="text"
                 placeholder="Filtrar por loja..."
                 value={filterLoja}
                 onChange={(e) => setFilterLoja(e.target.value)}
-                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-red-300"
+                className="px-3 py-1.5 text-xs border border-gray-200 rounded-lg outline-none focus:border-emerald-500"
               />
             </div>
 
-            <div className="overflow-x-auto border border-gray-50 rounded-xl">
+            <div className="overflow-x-auto border border-gray-100 rounded-xl shadow-sm">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-gray-50 text-gray-400 font-bold border-b border-gray-100">
+                  <tr className="bg-slate-50 text-slate-500 font-bold border-b border-gray-200">
                     <th className="p-3">Nome / Loja</th>
                     <th className="p-3">E-mail de Trabalho</th>
                     <th className="p-3">Tipo de Filtro</th>
@@ -289,21 +300,21 @@ export default function GestaoAcessos({
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredColaboradores.map(c => (
-                    <tr key={c.id} className="hover:bg-gray-50">
+                    <tr key={c.id} className="hover:bg-slate-50 bg-white">
                       <td className="p-3">
                         <p className="font-bold text-gray-900">{c.nome}</p>
                         <p className="text-[10px] text-gray-400">{c.loja}</p>
                       </td>
                       <td className="p-3">
-                        <span className="font-mono">{c.email}</span>
+                        <span className="font-mono text-slate-600">{c.email}</span>
                       </td>
                       <td className="p-3 text-gray-500 font-semibold text-[10px]">
                         {c.empresa}
                       </td>
                       <td className="p-3">
                         <span className={`inline-block px-2 py-0.5 rounded-full font-bold text-[9px] ${
-                          c.status === 'Ativo' ? 'bg-emerald-50 text-emerald-600' :
-                          c.status === 'Bloqueado' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'
+                          c.status === 'Ativo' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                          c.status === 'Bloqueado' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-amber-50 text-amber-600 border border-amber-100'
                         }`}>
                           {c.status} {c.status === 'Inativo' && c.inativoAte ? `(Até ${c.inativoAte})` : ''}
                         </span>
@@ -312,28 +323,28 @@ export default function GestaoAcessos({
                         <button
                           title="Ativar acesso"
                           onClick={() => handleStatusChange(c.id, 'Ativo')}
-                          className="p-1 text-emerald-600 border border-emerald-100 rounded hover:bg-emerald-50 cursor-pointer"
+                          className="p-1 text-emerald-600 border border-emerald-100 rounded hover:bg-emerald-50 cursor-pointer bg-white"
                         >
                           Ativar
                         </button>
                         <button
                           title="Bloquear acesso temporário"
                           onClick={() => handleStatusChange(c.id, 'Bloqueado')}
-                          className="p-1 text-red-600 border border-red-100 rounded hover:bg-red-50 cursor-pointer"
+                          className="p-1 text-red-600 border border-red-100 rounded hover:bg-red-50 cursor-pointer bg-white"
                         >
                           Bloquear
                         </button>
                         <button
                           title="Inativar Programado"
                           onClick={() => setSelectedColToInactivate(c.id)}
-                          className="p-1 text-amber-600 border border-amber-100 rounded hover:bg-amber-50 cursor-pointer"
+                          className="p-1 text-amber-600 border border-amber-100 rounded hover:bg-amber-50 cursor-pointer bg-white"
                         >
                           Programar
                         </button>
                         <button
                           title="Excluir Colaborador"
                           onClick={() => onDeleteColaborador(c.id)}
-                          className="p-1 text-rose-600 border border-rose-100 rounded hover:bg-rose-50 cursor-pointer"
+                          className="p-1 text-rose-600 border border-rose-100 rounded hover:bg-rose-50 cursor-pointer bg-white"
                         >
                           Excluir
                         </button>
@@ -346,7 +357,7 @@ export default function GestaoAcessos({
 
             {/* Scheduled Inactivation selector overlay */}
             {selectedColToInactivate && (
-              <div className="bg-amber-50 border border-amber-250 p-4 rounded-xl space-y-2 text-xs">
+              <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl space-y-2 text-xs shadow-sm">
                 <p className="font-semibold text-amber-900 flex items-center">
                   <Calendar className="w-4 h-4 mr-1 text-amber-600" />
                   Programar Inativação Temporária de Colaborador
@@ -356,17 +367,17 @@ export default function GestaoAcessos({
                     type="date"
                     value={schedInativoData}
                     onChange={(e) => setSchedInativoData(e.target.value)}
-                    className="p-1.5 border border-amber-300 rounded text-gray-800"
+                    className="p-1.5 border border-amber-300 rounded text-gray-800 bg-white"
                   />
                   <button
                     onClick={() => handleStatusChange(selectedColToInactivate, 'Inativo', schedInativoData)}
-                    className="px-3 py-1.5 bg-amber-655 bg-amber-600 text-white rounded font-bold hover:bg-amber-700 cursor-pointer"
+                    className="px-3 py-1.5 bg-amber-600 text-white rounded font-bold hover:bg-amber-700 cursor-pointer shadow-sm"
                   >
                     Confirmar Trava
                   </button>
                   <button
                     onClick={() => setSelectedColToInactivate(null)}
-                    className="text-gray-500 underline"
+                    className="text-gray-500 hover:text-gray-800 underline font-semibold"
                   >
                     Cancelar
                   </button>
@@ -376,9 +387,9 @@ export default function GestaoAcessos({
           </div>
 
           {/* Register Form */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm h-fit">
-            <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center">
-              <Plus className="w-4 h-4 mr-1 text-red-500" />
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-xl h-fit">
+            <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center border-b border-gray-100 pb-2">
+              <Plus className="w-4 h-4 mr-1 text-emerald-500" />
               Cadastrar Colaborador
             </h3>
             <form onSubmit={handleCreateColaborador} className="space-y-4 text-xs">
@@ -389,7 +400,7 @@ export default function GestaoAcessos({
                   placeholder="Carlos Silva"
                   value={newColNome}
                   onChange={(e) => setNewColNome(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-red-400"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -400,7 +411,7 @@ export default function GestaoAcessos({
                   placeholder="silva@pneubras.com.br"
                   value={newColEmail}
                   onChange={(e) => setNewColEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-red-400"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -411,7 +422,7 @@ export default function GestaoAcessos({
                   placeholder="Ex: Filial Sul"
                   value={newColLoja}
                   onChange={(e) => setNewColLoja(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-red-400"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -420,7 +431,7 @@ export default function GestaoAcessos({
                 <select
                   value={newColEmpresa}
                   onChange={(e: any) => setNewColEmpresa(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none bg-white font-semibold text-gray-700"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none bg-white font-semibold text-gray-700 focus:border-emerald-400"
                 >
                   <option value="PneuDrive - Serviços">PneuDrive - Serviços (Layout Tipo 1)</option>
                   <option value="PneuBras - Vendas">PneuBras - Vendas (Layout Tipo 2)</option>
@@ -431,7 +442,7 @@ export default function GestaoAcessos({
 
               <button
                 type="submit"
-                className="w-full py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold rounded-lg hover:from-red-700 hover:to-orange-700 cursor-pointer transition shadow-md shadow-red-200"
+                className="w-full py-2 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 cursor-pointer transition shadow-md"
               >
                 Salvar Colaborador na Base
               </button>
@@ -443,27 +454,27 @@ export default function GestaoAcessos({
       {/* 2. NEWS CONFIG PANEL */}
       {activeSubTab === 'noticias' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm lg:col-span-2 space-y-4">
-            <h3 className="text-sm font-bold text-gray-800">Notícias SSMA Publicadas</h3>
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-xl lg:col-span-2 space-y-4">
+            <h3 className="text-sm font-bold text-gray-800 border-b border-gray-100 pb-2">Notícias SSMA Publicadas</h3>
             <div className="space-y-4">
               {noticias.length === 0 ? (
                 <p className="text-xs text-gray-400 text-center py-6">Nenhuma notícia publicada ainda.</p>
               ) : (
                 noticias.map((n) => (
-                  <div key={n.id} className="flex gap-4 p-4 border border-gray-100 rounded-xl bg-gray-50/50 group relative">
+                  <div key={n.id} className="flex gap-4 p-4 border border-gray-200 rounded-xl bg-white shadow-sm group relative">
                     <img
                       src={n.imageUrl}
                       alt={n.titulo}
-                      className="w-20 h-20 object-cover rounded-lg border border-gray-200 flex-shrink-0"
+                      className="w-20 h-20 object-cover rounded-lg border border-gray-100 flex-shrink-0"
                     />
                     <div className="space-y-1 text-xs">
-                      <h4 className="font-bold text-gray-900 group-hover:text-red-650 transition">{n.titulo}</h4>
+                      <h4 className="font-bold text-gray-900 group-hover:text-emerald-600 transition">{n.titulo}</h4>
                       <p className="text-gray-500 line-clamp-2">{n.descricao}</p>
-                      <p className="text-[10px] text-gray-450 italic">Link de Origami: {n.linkOriginal}</p>
+                      <p className="text-[10px] text-gray-400 italic">Link de Origem: {n.linkOriginal}</p>
                     </div>
                     <button
                       onClick={() => onDeleteNoticia(n.id)}
-                      className="absolute right-3 top-3 p-1.5 border border-red-100 text-red-500 hover:bg-red-50 rounded cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute right-3 top-3 p-1.5 border border-red-100 bg-white text-red-500 hover:bg-red-50 rounded cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -474,9 +485,9 @@ export default function GestaoAcessos({
           </div>
 
           {/* Form to post news */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm h-fit">
-            <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center">
-              <Newspaper className="w-4 h-4 mr-1 text-red-500" />
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-xl h-fit">
+            <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center border-b border-gray-100 pb-2">
+              <Newspaper className="w-4 h-4 mr-1 text-emerald-500" />
               Publicar Notícia
             </h3>
             <form onSubmit={handleCreateNoticia} className="space-y-4 text-xs">
@@ -487,7 +498,7 @@ export default function GestaoAcessos({
                   placeholder="Acidentes zero na filial Sul esta semana"
                   value={newsTitulo}
                   onChange={(e) => setNewsTitulo(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -498,7 +509,7 @@ export default function GestaoAcessos({
                   placeholder="Descreva brevemente os detalhes técnicos e as conquistas regulatórias..."
                   value={newsDescricao}
                   onChange={(e) => setNewsDescricao(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -509,7 +520,7 @@ export default function GestaoAcessos({
                   placeholder="https://g1.globo.com/..."
                   value={newsLink}
                   onChange={(e) => setNewsLink(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -520,13 +531,13 @@ export default function GestaoAcessos({
                   placeholder="https://images.unsplash.com/..."
                   value={newsImage}
                   onChange={(e) => setNewsImage(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold rounded-lg hover:from-red-700 hover:to-orange-700 cursor-pointer shadow-md"
+                className="w-full py-2 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 cursor-pointer shadow-md transition"
               >
                 Publicar Notícia SSMA
               </button>
@@ -538,25 +549,25 @@ export default function GestaoAcessos({
       {/* 3. SHIELD PILLS VIDEO & QUIZ MANAGER */}
       {activeSubTab === 'pilulas' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm lg:col-span-2 space-y-4">
-            <h3 className="text-sm font-bold text-gray-800">Pílulas de Conhecimento Registradas</h3>
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-xl lg:col-span-2 space-y-4">
+            <h3 className="text-sm font-bold text-gray-800 border-b border-gray-100 pb-2">Pílulas de Conhecimento Registradas</h3>
             <div className="space-y-4">
               {pilulas.length === 0 ? (
                 <p className="text-xs text-gray-400 text-center py-6">Nenhuma pílula de conhecimento cadastrada ainda.</p>
               ) : (
                 pilulas.map((p) => (
-                  <div key={p.id} className="p-4 border border-gray-100 rounded-xl bg-gray-50/50 group relative text-xs">
+                  <div key={p.id} className="p-4 border border-gray-200 rounded-xl bg-white shadow-sm group relative text-xs">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-bold text-gray-900">{p.titulo}</h4>
                       <button
                         onClick={() => onDeletePilula(p.id)}
-                        className="p-1 border border-red-100 text-red-500 hover:bg-red-50 rounded cursor-pointer"
+                        className="p-1 border border-red-100 bg-white text-red-500 hover:bg-red-50 rounded cursor-pointer shadow-sm"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
-                    <p className="text-gray-500 mb-2">{p.descricao}</p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 bg-white rounded border border-gray-100">
+                    <p className="text-gray-500 mb-3">{p.descricao}</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 bg-slate-50 rounded-lg border border-slate-100">
                       <div>
                         <p className="text-[10px] text-gray-400">DATA DISPONIBILIZAÇÃO:</p>
                         <p className="font-bold font-mono text-gray-700">{p.dataInicio}</p>
@@ -567,7 +578,7 @@ export default function GestaoAcessos({
                       </div>
                       <div className="col-span-2 md:col-span-1">
                         <p className="text-[10px] text-gray-400">QUESTÃO DO QUIZ:</p>
-                        <p className="font-bold text-indigo-700 truncate">{p.quiz?.pergunta}</p>
+                        <p className="font-bold text-emerald-700 truncate">{p.quiz?.pergunta}</p>
                       </div>
                     </div>
                   </div>
@@ -577,9 +588,9 @@ export default function GestaoAcessos({
           </div>
 
           {/* Form to submit pill */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm h-fit">
-            <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center">
-              <Video className="w-4 h-4 mr-1 text-red-500" />
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-xl h-fit">
+            <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center border-b border-gray-100 pb-2">
+              <Video className="w-4 h-4 mr-1 text-emerald-500" />
               Nova Pílula &amp; Quiz
             </h3>
             <form onSubmit={handleCreatePilula} className="space-y-4 text-xs">
@@ -590,7 +601,7 @@ export default function GestaoAcessos({
                   placeholder="NR-06: Princípios de Proteção Ocular"
                   value={pillTitulo}
                   onChange={(e) => setPillTitulo(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -601,7 +612,7 @@ export default function GestaoAcessos({
                   placeholder="Orientações e normas para operador de montadora..."
                   value={pillDescricao}
                   onChange={(e) => setPillDescricao(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
@@ -612,49 +623,49 @@ export default function GestaoAcessos({
                   placeholder="https://www.youtube.com/embed/5D34B8m4qX0"
                   value={pillVideoUrl}
                   onChange={(e) => setPillVideoUrl(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-400"
                 />
               </div>
 
-              <div className="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100 space-y-3">
-                <p className="font-bold text-indigo-900 border-b border-indigo-100 pb-1 uppercase tracking-wider text-[10px]">Configuração do Questionário Quiz</p>
+              <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3">
+                <p className="font-bold text-slate-800 border-b border-slate-200 pb-1 uppercase tracking-wider text-[10px]">Configuração do Questionário Quiz</p>
                 
                 <div>
-                  <label className="block text-indigo-800 font-semibold mb-1">Pergunta do Quiz</label>
+                  <label className="block text-slate-700 font-semibold mb-1">Pergunta do Quiz</label>
                   <input
                     type="text"
                     placeholder="Qual o EPI para ruídos?"
                     value={pillQuizPergunta}
                     onChange={(e) => setPillQuizPergunta(e.target.value)}
-                    className="w-full px-2 py-1 bg-white border border-indigo-200 rounded text-gray-800"
+                    className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded text-gray-800 focus:border-emerald-400 outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-[10px] text-gray-500">Opção A</label>
-                    <input type="text" placeholder="Opção 1" value={pillQuizOpcaAO} onChange={e => setPillQuizOpcaaO(e.target.value)} className="w-full p-1 bg-white border rounded text-xs" />
+                    <input type="text" placeholder="Opção 1" value={pillQuizOpcaAO} onChange={e => setPillQuizOpcaaO(e.target.value)} className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs outline-none focus:border-emerald-400" />
                   </div>
                   <div>
                     <label className="block text-[10px] text-gray-500">Opção B</label>
-                    <input type="text" placeholder="Opção 2" value={pillQuizOpcaBO} onChange={e => setPillQuizOpcaBO(e.target.value)} className="w-full p-1 bg-white border rounded text-xs" />
+                    <input type="text" placeholder="Opção 2" value={pillQuizOpcaBO} onChange={e => setPillQuizOpcaBO(e.target.value)} className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs outline-none focus:border-emerald-400" />
                   </div>
                   <div>
                     <label className="block text-[10px] text-gray-500">Opção C (Opcional)</label>
-                    <input type="text" placeholder="Opção 3" value={pillQuizOpcaCO} onChange={e => setPillQuizOpcaCO(e.target.value)} className="w-full p-1 bg-white border rounded text-xs" />
+                    <input type="text" placeholder="Opção 3" value={pillQuizOpcaCO} onChange={e => setPillQuizOpcaCO(e.target.value)} className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs outline-none focus:border-emerald-400" />
                   </div>
                   <div>
                     <label className="block text-[10px] text-gray-500">Opção D (Opcional)</label>
-                    <input type="text" placeholder="Opção 4" value={pillQuizOpcaDO} onChange={e => setPillQuizOpcaDO(e.target.value)} className="w-full p-1 bg-white border rounded text-xs" />
+                    <input type="text" placeholder="Opção 4" value={pillQuizOpcaDO} onChange={e => setPillQuizOpcaDO(e.target.value)} className="w-full p-1.5 bg-white border border-slate-300 rounded text-xs outline-none focus:border-emerald-400" />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-indigo-800 font-semibold mb-1">Opção Correta (Índice)</label>
+                  <label className="block text-slate-700 font-semibold mb-1">Opção Correta (Índice)</label>
                   <select
                     value={pillQuizRespostaCorreta}
                     onChange={(e: any) => setPillQuizRespostaCorreta(parseInt(e.target.value))}
-                    className="w-full px-2 py-1 bg-white border border-indigo-200 rounded text-gray-700"
+                    className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded text-gray-700 outline-none focus:border-emerald-400"
                   >
                     <option value={0}>Opção A Correta</option>
                     <option value={1}>Opção B Correta</option>
@@ -671,7 +682,7 @@ export default function GestaoAcessos({
                     type="date"
                     value={pillDataInicio}
                     onChange={(e) => setPillDataInicio(e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-200 rounded outline-none"
+                    className="w-full px-2 py-1.5 border border-gray-200 rounded outline-none focus:border-emerald-400"
                   />
                 </div>
                 <div>
@@ -680,14 +691,14 @@ export default function GestaoAcessos({
                     type="date"
                     value={pillDataFim}
                     onChange={(e) => setPillDataFim(e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-200 rounded outline-none"
+                    className="w-full px-2 py-1.5 border border-gray-200 rounded outline-none focus:border-emerald-400"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white font-bold rounded-lg hover:bg-indigo-900 cursor-pointer"
+                className="w-full py-2 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 cursor-pointer shadow-md transition"
               >
                 Cadastrar Pílula e Bloqueios
               </button>
@@ -698,21 +709,21 @@ export default function GestaoAcessos({
 
       {/* 4. CONSOLIDATED ENGAGEMENT REPORT TABLE */}
       {activeSubTab === 'relatorios' && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
-          <div className="flex justify-between items-center">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-xl space-y-4">
+          <div className="flex justify-between items-center border-b border-gray-100 pb-3">
             <div>
               <h3 className="font-bold text-gray-800 text-sm">Relatórios e Aproveitamento Geral dos Diálogos</h3>
-              <p className="text-[11px] text-gray-400">Verificação de logs e quizzes respondidos pelos colaboradores dentro do prazo legal</p>
+              <p className="text-[11px] text-gray-500">Verificação de logs e quizzes respondidos pelos colaboradores dentro do prazo legal</p>
             </div>
-            <span className="text-xs bg-indigo-50 border border-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-bold">
+            <span className="text-xs bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-1 rounded-full font-bold shadow-sm">
               Desempenho Corporativo
             </span>
           </div>
 
-          <div className="overflow-x-auto border border-gray-50 rounded-xl text-xs">
+          <div className="overflow-x-auto border border-gray-200 rounded-xl text-xs shadow-sm">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-gray-50 text-gray-400 font-bold border-b border-gray-100 text-[10px]">
+                <tr className="bg-slate-50 text-slate-500 font-bold border-b border-gray-200 text-[10px]">
                   <th className="p-3">Nome do Colaborador</th>
                   <th className="p-3">E-mail</th>
                   <th className="p-3">Pílula de SST</th>
@@ -725,45 +736,45 @@ export default function GestaoAcessos({
               <tbody className="divide-y divide-gray-100">
                 {respostasQuiz.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="p-4 text-center text-gray-400">Nenhum log de participação registrado.</td>
+                    <td colSpan={7} className="p-4 text-center text-gray-400 bg-white">Nenhum log de participação registrado.</td>
                   </tr>
                 ) : (
                   respostasQuiz.map((rep) => {
                     const pill = pilulas.find(p => p.id === rep.pilulaId);
                     return (
-                      <tr key={rep.id} className="hover:bg-gray-50">
+                      <tr key={rep.id} className="hover:bg-slate-50 bg-white">
                         <td className="p-3 font-bold text-gray-900">{rep.colaboradorNome}</td>
                         <td className="p-3 font-mono text-gray-500">{rep.colaboradorEmail}</td>
                         <td className="p-3 font-semibold text-gray-700">{pill ? pill.titulo : "Pílula Removida"}</td>
                         <td className="p-3">
-                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] ${
-                            rep.assistiuVideo ? 'bg-green-50 text-green-700 font-bold' : 'bg-gray-100 text-gray-500'
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] border ${
+                            rep.assistiuVideo ? 'bg-emerald-50 text-emerald-700 font-bold border-emerald-100' : 'bg-gray-50 text-gray-500 border-gray-200'
                           }`}>
                             {rep.assistiuVideo ? "SIM" : "NÃO"}
                           </span>
                         </td>
                         <td className="p-3">
-                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] ${
-                            rep.respondeuQuiz ? 'bg-indigo-50 text-indigo-700 font-bold' : 'bg-gray-150 text-gray-500'
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] border ${
+                            rep.respondeuQuiz ? 'bg-blue-50 text-blue-700 font-bold border-blue-100' : 'bg-gray-50 text-gray-500 border-gray-200'
                           }`}>
                             {rep.respondeuQuiz ? "RESPONDIDO" : "-"}
                           </span>
                         </td>
                         <td className="p-3">
                           {rep.respondeuQuiz ? (
-                            <span className={`inline-block px-2 py-0.5 rounded-full font-bold text-[9px] ${
-                              rep.acertou ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-850 text-rose-700'
+                            <span className={`inline-block px-2 py-0.5 rounded-full font-bold text-[9px] border ${
+                              rep.acertou ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'
                             }`}>
                               {rep.acertou ? "ACERTOU VISTORIA" : "ERROU"}
                             </span>
                           ) : "-"}
                         </td>
                         <td className="p-3">
-                          <span className={`inline-block px-2 py-0.5 rounded font-black text-[9px] ${
-                            rep.status === 'Concluido' ? 'bg-emerald-50 text-emerald-700' :
-                            rep.status === 'Pendente' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'
+                          <span className={`inline-block px-2 py-0.5 rounded font-black text-[9px] border ${
+                            rep.status === 'Concluido' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                            rep.status === 'Pendente' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200'
                           }`}>
-                            {rep.status?.toUpperCase() || 'EXPENDED'}
+                            {rep.status?.toUpperCase() || 'EXPIRED'}
                           </span>
                         </td>
                       </tr>
