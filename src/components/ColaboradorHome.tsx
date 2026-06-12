@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertOctagon, CheckCircle, ExternalLink, ArrowRight, Lock } from 'lucide-react';
 import { Noticia, PilulaTreinamento, QuizRespostum } from '../types';
 
-// Importação correta da imagem a partir da pasta src
+// Importação do papel de parede (Ajuste o caminho se a imagem não estiver na mesma pasta)
 import imgFundo from '../papel.png';
 
 interface ColaboradorHomeProps {
@@ -11,7 +11,6 @@ interface ColaboradorHomeProps {
   pilulas: PilulaTreinamento[];
   respostasQuiz: QuizRespostum[];
   onSubmitQuiz: (pillId: string, acerto: boolean) => Promise<void>;
-  // Propriedade recebida da barra lateral
   activeView: 'noticias' | 'formularios' | 'dialogos'; 
 }
 
@@ -80,24 +79,25 @@ export default function ColaboradorHome({
     return { status: 'Pendente' as const };
   };
 
-  // Limpa o formulário ativo caso o usuário clique em outra aba na barra lateral
   useEffect(() => {
     setActiveFormLayout(null);
   }, [activeView]);
 
   return (
     <div 
-      className="w-full min-h-screen bg-slate-900 p-4 sm:p-6 lg:p-8"
+      className="w-full min-h-screen flex flex-col"
       style={{ 
         backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.85)), url(${imgFundo})`,
         backgroundSize: 'cover',
-        // A âncora 'left top' garante que a Logo (situada à esquerda) nunca seja cortada
+        // 'left top' garante que a Logo do canto superior esquerdo nunca é cortada
         backgroundPosition: 'left top', 
         backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed'
+        // REMOVIDO: backgroundAttachment: 'fixed' (era isto que puxava a imagem para debaixo do menu lateral)
       }}
     >
-      <div className="space-y-6 max-w-7xl mx-auto w-full">
+      {/* Container que dá o espaçamento (padding) do conteúdo sem afetar a imagem de fundo */}
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full flex-1">
+        
         {/* Banner de Boas Vindas */}
         <div className="bg-white rounded-xl p-6 text-slate-850 border border-slate-200 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-1">
