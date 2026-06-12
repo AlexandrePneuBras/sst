@@ -3,7 +3,7 @@ import { AlertOctagon, CheckCircle, ExternalLink, ArrowRight, Lock } from 'lucid
 import { Noticia, PilulaTreinamento, QuizRespostum } from '../types';
 
 // Importação do papel de parede (Ajuste o caminho se a imagem não estiver na mesma pasta)
-import imgFundo from '../papel.png';
+import imgFundo from '../planoinicial.png';
 
 interface ColaboradorHomeProps {
   user: any;
