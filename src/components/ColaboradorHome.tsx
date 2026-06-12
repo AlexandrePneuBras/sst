@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertOctagon, CheckCircle, ExternalLink, ArrowRight, Lock } from 'lucide-react';
 import { Noticia, PilulaTreinamento, QuizRespostum } from '../types';
 
-// IMPORTAÇÃO DA IMAGEM DO PAPEL DE PAREDE
-// Se o seu ColaboradorHome.tsx estiver na pasta src/components e a imagem na pasta src, usa-se '../papel.png'
+// Importação correta da imagem a partir da pasta src
 import imgFundo from '../papel.png';
 
 interface ColaboradorHomeProps {
@@ -12,6 +11,7 @@ interface ColaboradorHomeProps {
   pilulas: PilulaTreinamento[];
   respostasQuiz: QuizRespostum[];
   onSubmitQuiz: (pillId: string, acerto: boolean) => Promise<void>;
+  // Propriedade recebida da barra lateral
   activeView: 'noticias' | 'formularios' | 'dialogos'; 
 }
 
@@ -80,21 +80,26 @@ export default function ColaboradorHome({
     return { status: 'Pendente' as const };
   };
 
+  // Limpa o formulário ativo caso o usuário clique em outra aba na barra lateral
   useEffect(() => {
     setActiveFormLayout(null);
   }, [activeView]);
 
   return (
     <div 
-      className="w-full min-h-screen bg-cover bg-center bg-fixed bg-no-repeat p-4 sm:p-6 lg:p-8"
+      className="w-full min-h-screen bg-slate-900 p-4 sm:p-6 lg:p-8"
       style={{ 
-        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url(${imgFundo})`
+        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.85)), url(${imgFundo})`,
+        backgroundSize: 'cover',
+        // A âncora 'left top' garante que a Logo (situada à esquerda) nunca seja cortada
+        backgroundPosition: 'left top', 
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
       }}
     >
-      <div className="space-y-6 max-w-7xl mx-auto">
-        
+      <div className="space-y-6 max-w-7xl mx-auto w-full">
         {/* Banner de Boas Vindas */}
-        <div className="bg-white rounded-xl p-6 text-slate-850 border border-slate-200 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="bg-white rounded-xl p-6 text-slate-850 border border-slate-200 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-1">
             <span className="bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider inline-block">
               Portal do Colaborador SST
@@ -111,17 +116,19 @@ export default function ColaboradorHome({
           </div>
         </div>
 
+        {/* ÁREA DE CONTEÚDO DINÂMICO */}
+        
         {/* 1. NOTÍCIAS SST SECTION */}
         {activeView === 'noticias' && (
           <div className="bg-white/95 backdrop-blur-sm rounded-xl border border-slate-200 shadow-xl p-6 space-y-6">
-            <div className="border-b border-slate-200 pb-4">
+            <div className="border-b border-slate-100 pb-4">
               <h2 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Notícias de SSMA / Prevenção em Tempo Real</h2>
               <p className="text-xs text-slate-500 mt-1">Canal de conscientização permanente sobre segurança, saúde ocupacional e NR-Portarias</p>
             </div>
 
             <div className="flex overflow-x-auto pb-4 gap-4 scrollbar-thin scrollbar-thumb-slate-300 snap-x">
               {noticias.length === 0 ? (
-                <p className="text-xs text-slate-500 py-6 text-center w-full font-medium">Nenhuma notícia publicada pelo administrador do SST.</p>
+                <p className="text-xs text-slate-500 font-medium py-6 text-center w-full">Nenhuma notícia publicada pelo administrador do SST.</p>
               ) : (
                 noticias.map((n) => (
                   <div key={n.id} className="bg-white rounded-xl border border-slate-200 p-4 min-w-[280px] sm:min-w-[320px] max-w-[320px] flex-shrink-0 snap-start flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all">
@@ -207,16 +214,16 @@ export default function ColaboradorHome({
                           <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-3">
                             <p className="font-bold text-slate-800 text-sm">1. Os mecânicos estão utilizando os protetores auriculares corretamente? *</p>
                             <div className="space-y-2 font-medium text-slate-600">
-                              <label className="flex items-center space-x-2"><input type="radio" required name="qa1" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, integralmente</span></label>
-                              <label className="flex items-center space-x-2"><input type="radio" name="qa1" className="text-slate-900 focus:ring-slate-800" /> <span>Parcialmente (reclamam de desconforto)</span></label>
-                              <label className="flex items-center space-x-2"><input type="radio" name="qa1" className="text-slate-900 focus:ring-slate-800" /> <span>Não utilizam</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" required name="qa1" className="text-blue-600 focus:ring-blue-500" /> <span>Sim, integralmente</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" name="qa1" className="text-blue-600 focus:ring-blue-500" /> <span>Parcialmente (reclamam de desconforto)</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" name="qa1" className="text-blue-600 focus:ring-blue-500" /> <span>Não utilizam</span></label>
                             </div>
                           </div>
                           <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-3">
                             <p className="font-bold text-slate-800 text-sm">2. Os coletores de óleo queimado e solventes estão tampados e em local protegido? *</p>
                             <div className="space-y-2 font-medium text-slate-600">
-                              <label className="flex items-center space-x-2"><input type="radio" required name="qa2" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, conforme NR-26</span></label>
-                              <label className="flex items-center space-x-2"><input type="radio" name="qa2" className="text-slate-900 focus:ring-slate-800" /> <span>Não, há tambores abertos</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" required name="qa2" className="text-blue-600 focus:ring-blue-500" /> <span>Sim, conforme NR-26</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" name="qa2" className="text-blue-600 focus:ring-blue-500" /> <span>Não, há tambores abertos</span></label>
                             </div>
                           </div>
                         </>
@@ -227,15 +234,15 @@ export default function ColaboradorHome({
                           <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-3">
                             <p className="font-bold text-slate-800 text-sm">1. A cadeira de trabalho possui ajuste de altura regulado de forma ergonômica? *</p>
                             <div className="space-y-2 font-medium text-slate-600">
-                              <label className="flex items-center space-x-2"><input type="radio" required name="qb1" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, regulada perfeitamente</span></label>
-                              <label className="flex items-center space-x-2"><input type="radio" name="qb1" className="text-slate-900 focus:ring-slate-800" /> <span>Não / Cadeira sem ajustes</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" required name="qb1" className="text-blue-600 focus:ring-blue-500" /> <span>Sim, regulada perfeitamente</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" name="qb1" className="text-blue-600 focus:ring-blue-500" /> <span>Não / Cadeira sem ajustes</span></label>
                             </div>
                           </div>
                           <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-3">
                             <p className="font-bold text-slate-800 text-sm">2. Há reflexos prejudiciais da luz nas telas dos computadores? *</p>
                             <div className="space-y-2 font-medium text-slate-600">
-                              <label className="flex items-center space-x-2"><input type="radio" required name="qb2" className="text-slate-900 focus:ring-slate-800" /> <span>Não, iluminação confortável</span></label>
-                              <label className="flex items-center space-x-2"><input type="radio" name="qb2" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, excesso de luz solar ou luminária direta</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" required name="qb2" className="text-blue-600 focus:ring-blue-500" /> <span>Não, iluminação confortável</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" name="qb2" className="text-blue-600 focus:ring-blue-500" /> <span>Sim, excesso de luz solar ou luminária direta</span></label>
                             </div>
                           </div>
                         </>
@@ -246,15 +253,15 @@ export default function ColaboradorHome({
                           <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-3">
                             <p className="font-bold text-slate-800 text-sm">1. Os extintores das salas de reunião e copa estão com a trava plástica inviolada? *</p>
                             <div className="space-y-2 font-medium text-slate-600">
-                              <label className="flex items-center space-x-2"><input type="radio" required name="qc1" className="text-slate-900 focus:ring-slate-800" /> <span>Sim, todos revisados</span></label>
-                              <label className="flex items-center space-x-2"><input type="radio" name="qc1" className="text-slate-900 focus:ring-slate-800" /> <span>Não/Inconsistentes em alguma área</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" required name="qc1" className="text-blue-600 focus:ring-blue-500" /> <span>Sim, todos revisados</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" name="qc1" className="text-blue-600 focus:ring-blue-500" /> <span>Não/Inconsistentes em alguma área</span></label>
                             </div>
                           </div>
                           <div className="bg-white rounded-lg p-5 border border-slate-200 shadow-sm space-y-3">
                             <p className="font-bold text-slate-800 text-sm">2. O plano de saída de emergência geral da Matriz está afixado em local visível ao lado do elevador? *</p>
                             <div className="space-y-2 font-medium text-slate-600">
-                              <label className="flex items-center space-x-2"><input type="radio" required name="qc2" className="text-slate-900 focus:ring-slate-800" /> <span>Sim</span></label>
-                              <label className="flex items-center space-x-2"><input type="radio" name="qc2" className="text-slate-900 focus:ring-slate-800" /> <span>Não localizado</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" required name="qc2" className="text-blue-600 focus:ring-blue-500" /> <span>Sim</span></label>
+                              <label className="flex items-center space-x-2"><input type="radio" name="qc2" className="text-blue-600 focus:ring-blue-500" /> <span>Não localizado</span></label>
                             </div>
                           </div>
                         </>
