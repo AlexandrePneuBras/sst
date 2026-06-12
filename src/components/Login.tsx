@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // Importações das imagens
-import LogoPneubras from '../PneuBras.jpeg';
+// import LogoPneubras from '../PneuBras.jpeg';
 import FundoInicial from '../lidia.png';
 
 // IMPORTAÇÃO DA LOGO DA CIPA (Descomente a linha abaixo e ajuste o nome/extensão do ficheiro)
