@@ -47,13 +47,21 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       {/* Lado Esquerdo - Ocupa todo o espaço restante */}
       <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-slate-900">
         
-        {/* Imagem preenchendo a tela toda (Âncora top-left para evitar cortar a logo da imagem) */}
+        {/* Imagem preenchendo a tela toda 
+            Foi adicionado 'backgroundPosition: right center'. 
+            Isso "cola" a imagem no painel direito, evitando que o capacete e as logos sejam cortados em monitores grandes.
+        */}
         <div 
-          className="absolute inset-0 bg-cover bg-left-top bg-no-repeat"
-          style={{ backgroundImage: `url(${FundoInicial})` }}
+          className="absolute inset-0"
+          style={{ 
+            backgroundImage: `url(${FundoInicial})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'right center',
+            backgroundRepeat: 'no-repeat'
+          }}
         ></div>
         
-        {/* Gradiente escuro inferior suave para dar leitura aos textos */}
+        {/* Gradiente escuro inferior suave para dar leitura aos textos sem embaçar a imagem */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent pointer-events-none z-0"></div>
 
         {/* Textos de rodapé */}
