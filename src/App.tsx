@@ -293,7 +293,7 @@ export default function App() {
 
       <div className="flex-1 flex relative overflow-hidden">
         
-        {/* Sidebar: Escura e minimalista */}
+        {/* Sidebar */}
         <aside className={`bg-slate-900 text-slate-400 w-64 flex flex-col justify-between shrink-0 transition-transform duration-300 ease-in-out z-30
           absolute md:static top-0 bottom-0 left-0 md:transform-none border-r border-slate-200/10 ${
             mobileMenuOpen ? 'translate-x-0 shadow-2xl h-[calc(100vh-89px)]' : '-translate-x-full md:translate-x-0'
@@ -394,7 +394,6 @@ export default function App() {
                     <p className="text-slate-400 text-xs">Complete seus DDS e avaliações comportamentais no painel ao lado para manter sua área segura.</p>
                   </div>
 
-                  {/* NOVO: MENUS DO COLABORADOR */}
                   <div className="pt-6">
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest px-2 mb-3">Menu de Navegação</p>
                     <div className="space-y-1">
@@ -458,8 +457,9 @@ export default function App() {
           </div>
         </aside>
 
-        <main className="flex-1 p-6 md:p-10 overflow-y-auto max-w-full bg-slate-50">
-          <div className="max-w-7xl mx-auto">
+        {/* --- ALTERAÇÃO IMPORTANTE AQUI: Padding e Background Condicionais --- */}
+        <main className={`flex-1 overflow-y-auto max-w-full ${isAdminViewMode ? 'p-6 md:p-10 bg-slate-50' : 'p-0 bg-slate-900'}`}>
+          <div className={`${isAdminViewMode ? 'max-w-7xl mx-auto' : 'w-full min-h-full flex flex-col'}`}>
             {isAdminViewMode ? (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {activeAdminTab === 'painel' && (
@@ -602,8 +602,7 @@ export default function App() {
                 )}
               </div>
             ) : (
-              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-                {/* NOVO: Passando a aba ativa como Propriedade (activeView) */}
+              <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 flex-1 flex flex-col">
                 <ColaboradorHome 
                   user={user} 
                   noticias={noticias} 
