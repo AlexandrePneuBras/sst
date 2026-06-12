@@ -57,7 +57,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             <img src={LogoPneubras} alt="PneuBras Logo" className="h-10 w-auto object-contain" />
           </div>
           
-          {/* Logo CIPA (Retire as chavetas de comentário {/* */} quando tiver o ficheiro importado no topo) */}
+          {/* Logo CIPA (Descomente o bloco abaixo quando tiver o arquivo importado no topo) */}
           {/* <div className="bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl shadow-lg border border-white/20">
             <img src={LogoCipa} alt="CIPA Logo" className="h-10 w-auto object-contain" />
           </div> 
@@ -65,7 +65,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         </div>
         {/* --------------------------------------------------- */}
 
-        {/* Imagem preenchendo a tela toda (Âncora top-left para evitar cortar caso a imagem tenha grafismos no canto) */}
+        {/* Imagem preenchendo a tela toda */}
         <div 
           className="absolute inset-0 bg-cover bg-left-top bg-no-repeat"
           style={{ backgroundImage: `url(${FundoInicial})` }}
