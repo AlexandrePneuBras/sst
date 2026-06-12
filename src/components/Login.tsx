@@ -11,7 +11,7 @@ interface LoginProps {
 
 export default function Login({ onLoginSuccess }: LoginProps) {
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState(''); // NOVO: Estado para armazenar a senha
+  const [senha, setSenha] = useState(''); 
   const [isAdmin, setIsAdmin] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -45,19 +45,16 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
       
       {/* Lado Esquerdo - Ocupa todo o espaço restante */}
-      <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-[#2596be]">
+      <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-slate-900">
         
-        {/* Imagem intacta */}
+        {/* Imagem preenchendo a tela toda (bg-cover) */}
         <div 
-          className="absolute inset-0 bg-contain bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${FundoInicial})` }}
         ></div>
         
-        {/* Gradiente superior esfumado */}
-        <div className="absolute top-0 left-0 w-full h-[20%] bg-gradient-to-b from-[#2596be] via-[#2596be]/80 to-transparent pointer-events-none z-0"></div>
-        
-        {/* Gradiente escuro inferior para dar leitura aos textos */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/70 to-transparent pointer-events-none z-0"></div>
+        {/* Gradiente escuro inferior MUITO mais suave (apenas para dar leitura aos textos) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent pointer-events-none z-0"></div>
 
         {/* Textos de rodapé */}
         <div className="relative z-10 p-10 xl:p-14 max-w-3xl">
@@ -137,7 +134,6 @@ export default function Login({ onLoginSuccess }: LoginProps) {
               />
             </div>
 
-            {/* NOVO: Campo de Senha */}
             <div>
               <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">
                 Senha de Acesso
@@ -161,7 +157,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
             </button>
           </form>
 
-          {/* Área de credenciais - Mantivemos apenas o E-mail, a senha fica omitida */}
+          {/* Área de credenciais de homologação */}
           <div className="mt-8 pt-6 border-t border-slate-100">
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-3">Homologação (Apenas E-mails)</p>
             <div className="bg-slate-50/80 rounded-lg p-3 border border-slate-200/60 text-[10px] text-slate-600 space-y-2.5">
