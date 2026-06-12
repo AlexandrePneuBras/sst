@@ -89,7 +89,7 @@ export default function ColaboradorHome({
       style={{ 
         // ATENÇÃO: Substitua '/imagem_login.jpg' pelo caminho real onde a imagem está guardada no seu projeto
         // Exemplo: se estiver na pasta public, use "url('/image_a30131.jpg')"
-        backgroundImage: "linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url('/imagem_login.jpg')" 
+        backgroundImage: "linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url('../papel.png')" 
       }}
     >
       <div className="space-y-6 max-w-7xl mx-auto">
