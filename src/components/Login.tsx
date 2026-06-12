@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 
-// Mantemos a logo apenas para a versão de celular (mobile)
+// Importações das imagens
 import LogoPneubras from '../PneuBras.jpeg';
-// Importação do seu plano de fundo
 import FundoInicial from '../lidia.png';
+
+// IMPORTAÇÃO DA LOGO DA CIPA (Descomente a linha abaixo e ajuste o nome/extensão do ficheiro)
+// import LogoCipa from '../cipa.png';
 
 interface LoginProps {
   onLoginSuccess: (user: any) => void;
@@ -47,13 +49,29 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       {/* Lado Esquerdo - Ocupa todo o espaço restante */}
       <div className="hidden lg:flex flex-1 relative flex-col justify-end bg-slate-900">
         
-        {/* Imagem preenchendo a tela toda (bg-cover) */}
+        {/* --- LOGOMARCAS FIXAS NO CANTO SUPERIOR ESQUERDO --- */}
+        <div className="absolute top-10 left-10 z-50 flex items-center gap-4">
+          
+          {/* Logo Empresa */}
+          <div className="bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl shadow-lg border border-white/20">
+            <img src={LogoPneubras} alt="PneuBras Logo" className="h-10 w-auto object-contain" />
+          </div>
+          
+          {/* Logo CIPA (Retire as chavetas de comentário {/* */} quando tiver o ficheiro importado no topo) */}
+          {/* <div className="bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl shadow-lg border border-white/20">
+            <img src={LogoCipa} alt="CIPA Logo" className="h-10 w-auto object-contain" />
+          </div> 
+          */}
+        </div>
+        {/* --------------------------------------------------- */}
+
+        {/* Imagem preenchendo a tela toda (Âncora top-left para evitar cortar caso a imagem tenha grafismos no canto) */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-left-top bg-no-repeat"
           style={{ backgroundImage: `url(${FundoInicial})` }}
         ></div>
         
-        {/* Gradiente escuro inferior MUITO mais suave (apenas para dar leitura aos textos) */}
+        {/* Gradiente escuro inferior suave para dar leitura aos textos */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/30 to-transparent pointer-events-none z-0"></div>
 
         {/* Textos de rodapé */}
@@ -82,7 +100,7 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       <div className="w-full lg:w-[420px] xl:w-[460px] shrink-0 bg-white flex flex-col justify-center p-8 sm:p-10 shadow-[-20px_0_40px_-10px_rgba(0,0,0,0.15)] z-10 relative">
         <div className="w-full max-w-sm mx-auto">
           
-          {/* Logo Mobile */}
+          {/* Logo Mobile (Só aparece em telas pequenas) */}
           <div className="lg:hidden flex justify-center mb-8">
             <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100">
               <img src={LogoPneubras} alt="PneuBras Logo" className="h-10 w-auto object-contain" />
