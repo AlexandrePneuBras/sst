@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { Users, Newspaper, Video, GraduationCap, Plus, Trash2, Shield, Eye, ShieldAlert, Calendar, ArrowRight, Ban, CheckCircle } from 'lucide-react';
 import { Colaborador, Noticia, PilulaTreinamento, QuizRespostum } from '../types';
 
-// Importação da imagem do papel de parede (Ajuste o caminho se a imagem não estiver na pasta src raiz)
-import imgFundo from '../papel.png';
-
 interface GestaoAcessosProps {
   colaboradores: Colaborador[];
   noticias: Noticia[];
@@ -189,15 +186,9 @@ export default function GestaoAcessos({
   });
 
   return (
-    <div 
-      className="w-full min-h-screen p-4 sm:p-6 lg:p-8 space-y-6 rounded-2xl"
-      style={{ 
-        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.85)), url(${imgFundo})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'left top', 
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
+    // Fundo transparente para aproveitar o wallpaper vindo do App.tsx
+    <div className="w-full space-y-6">
+      
       {/* Dynamic Alerts */}
       {notif && (
         <div className="p-3 bg-slate-900 text-white rounded text-xs font-mono fixed right-6 top-6 shadow-xl z-50 animate-fade-in border border-slate-950">
