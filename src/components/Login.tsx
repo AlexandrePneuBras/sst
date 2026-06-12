@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 // Mantemos a logo apenas para a versão de celular (mobile)
 import LogoPneubras from '../PneuBras.jpeg';
 // Importação do seu plano de fundo
-import FundoInicial from '../lidia.png';
+import FundoInicial from '../lidia.jpg';
 
 interface LoginProps {
   onLoginSuccess: (user: any) => void;
