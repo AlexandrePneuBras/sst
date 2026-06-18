@@ -134,7 +134,7 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           
-          resolve(canvas.toDataURL('image/jpeg', 0.6)); 
+          resolve(canvas.toDataURL('image/png', 0.6)); 
         };
         img.onerror = (err) => reject(err);
       };
