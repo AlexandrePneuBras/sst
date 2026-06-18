@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { AlertOctagon, CheckCircle, ExternalLink, ArrowRight, Lock } from 'lucide-react';
 import { Noticia, PilulaTreinamento, QuizRespostum } from '../types';
 
-// Importação do papel de parede (Ajuste o caminho se a imagem não estiver na mesma pasta)
-import imgFundo from '../papel.jpg';
-
 interface ColaboradorHomeProps {
   user: any;
   noticias: Noticia[];
@@ -84,18 +81,8 @@ export default function ColaboradorHome({
   }, [activeView]);
 
   return (
-    <div 
-      className="w-full min-h-screen flex flex-col"
-      style={{ 
-        backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.85)), url(${imgFundo})`,
-        backgroundSize: 'cover',
-        // 'left top' garante que a Logo do canto superior esquerdo nunca é cortada
-        backgroundPosition: 'left top', 
-        backgroundRepeat: 'no-repeat',
-        // REMOVIDO: backgroundAttachment: 'fixed' (era isto que puxava a imagem para debaixo do menu lateral)
-      }}
-    >
-      {/* Container que dá o espaçamento (padding) do conteúdo sem afetar a imagem de fundo */}
+    <div className="w-full min-h-screen flex flex-col bg-slate-50">
+      {/* Container que dá o espaçamento (padding) do conteúdo */}
       <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full flex-1">
         
         {/* Banner de Boas Vindas */}
