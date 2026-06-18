@@ -14,7 +14,7 @@ import GestaoAcessos from './components/GestaoAcessos';
 import ColaboradorHome from './components/ColaboradorHome';
 
 // Importação da nova logomarca atualizada
-import LogoPneubras from './PneuBras.jpeg';
+import LogoPneubras from './PneuBras.png';
 
 export default function App() {
   const [user, setUser] = useState<any>(null);
