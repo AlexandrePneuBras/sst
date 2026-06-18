@@ -16,7 +16,7 @@ import ColaboradorHome from './components/ColaboradorHome';
 // Importação da nova logomarca atualizada
 import LogoPneubras from './PneuBras.jpeg';
 // Importação do papel de parede
-import imgFundo from '';
+// import imgFundo from '';
 
 export default function App() {
   const [user, setUser] = useState<any>(null);
