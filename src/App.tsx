@@ -15,8 +15,6 @@ import ColaboradorHome from './components/ColaboradorHome';
 
 // Importação da nova logomarca atualizada
 import LogoPneubras from './PneuBras.jpeg';
-// Importação do papel de parede
-// import imgFundo from '';
 
 export default function App() {
   const [user, setUser] = useState<any>(null);
@@ -455,13 +453,13 @@ export default function App() {
           </div>
         </aside>
 
-        {/* --- ATUALIZAÇÃO AQUI: <main> com padding 0 e fundo escuro base --- */}
-        <main className="flex-1 overflow-y-auto max-w-full p-0 bg-slate-900">
-          <div className="w-full min-h-full flex flex-col">
+        {/* <main> com padding 0 e fundo escuro mantido apenas para Colaborador */}
+        <main className={`flex-1 overflow-y-auto max-w-full ${isAdminViewMode ? 'p-0 bg-slate-50' : 'p-0 bg-slate-900'}`}>
+          <div className={`${isAdminViewMode ? 'w-full min-h-full flex flex-col' : 'w-full min-h-full flex flex-col'}`}>
             {isAdminViewMode ? (
               <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 flex-1 flex flex-col">
                 
-                {/* 1. Dashboard (mantém fundo claro p/ leitura de gráficos) */}
+                {/* 1. Dashboard */}
                 {activeAdminTab === 'painel' && (
                   <div className="flex-1 bg-slate-50 p-6 md:p-10">
                     <div className="max-w-7xl mx-auto">
@@ -470,7 +468,7 @@ export default function App() {
                   </div>
                 )}
                 
-                {/* 2. Inspeção (mantém fundo claro) */}
+                {/* 2. Inspeção */}
                 {activeAdminTab === 'inspecao' && (
                   <div className="flex-1 bg-slate-50 p-6 md:p-10">
                     <div className="max-w-7xl mx-auto">
@@ -479,7 +477,7 @@ export default function App() {
                   </div>
                 )}
 
-                {/* 3. Conformidade (mantém fundo claro) */}
+                {/* 3. Conformidade */}
                 {activeAdminTab === 'conformidade' && (
                   <div className="flex-1 bg-slate-50 p-6 md:p-10">
                     <div className="max-w-7xl mx-auto">
@@ -488,22 +486,13 @@ export default function App() {
                   </div>
                 )}
 
-                {/* 4. Dados e Acessos (Aqui aplicamos o papel de parede FULL BLEED) */}
+                {/* 4. Dados e Acessos - RESTAURADO PARA O PADRÃO CLARO SEM IMAGEM DE FUNDO */}
                 {activeAdminTab === 'dados' && (
-                  <div 
-                    className="flex-1 w-full flex flex-col"
-                    style={{ 
-                      backgroundImage: `linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.85)), url(${imgFundo})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'left top',
-                      backgroundRepeat: 'no-repeat'
-                    }}
-                  >
-                    {/* Espaçamento interno adaptável que não corta o papel de parede */}
-                    <div className="p-4 sm:p-6 lg:p-10 space-y-6 max-w-7xl mx-auto w-full">
+                  <div className="flex-1 bg-slate-50 p-6 md:p-10">
+                    <div className="max-w-7xl mx-auto space-y-6">
                       
-                      {/* Integrações com design translúcido */}
-                      <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 p-8 shadow-xl">
+                      {/* Integrações */}
+                      <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
                         <div className="flex items-center justify-between mb-8">
                           <div>
                             <h3 className="font-bold text-slate-800 text-lg flex items-center">
@@ -515,7 +504,7 @@ export default function App() {
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                          <div className="space-y-6 bg-slate-50/80 p-6 rounded-lg border border-slate-100">
+                          <div className="space-y-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
                             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center">
                               <BarChart3 className="w-4 h-4 mr-2" /> Dashboards
                             </h4>
@@ -563,7 +552,7 @@ export default function App() {
                             </div>
                           </div>
 
-                          <div className="space-y-6 bg-slate-50/80 p-6 rounded-lg border border-slate-100">
+                          <div className="space-y-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
                             <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center">
                               <Cloud className="w-4 h-4 mr-2" /> Nuvem & Repositórios
                             </h4>
@@ -613,7 +602,7 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* Componente GestaoAcessos renderiza transparente aproveitando o fundo que definimos */}
+                      {/* Componente GestaoAcessos renderiza perfeitamente no fundo claro */}
                       <GestaoAcessos
                         colaboradores={colaboradores}
                         noticias={noticias}
