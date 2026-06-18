@@ -239,7 +239,11 @@ export default function ConformidadeFormulario({ user, config, onSaved }: Confor
         enviarEmail,
         enviarGDrive,
         emailDestino: emailDestino,
-        pastaDestinoUrl: config.gdriveFormsFolderUrl
+        // ATUALIZAÇÃO: Enviamos os dois links para o Apps Script
+        configuracoes: {
+          gdriveFormsFolderUrl: config.gdriveFormsFolderUrl,
+          gdrivePhotosFolderUrl: config.gdrivePhotosFolderUrl
+        }
       };
 
       const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec';

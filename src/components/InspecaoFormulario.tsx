@@ -159,7 +159,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
             ...prev,
             [qId]: {
               ...prev[qId],
-              // A imagem entra por defeito como 'medium' (2 por linha no PDF)
               fotos: [...currentPhotos, { name: file.name, url: compressedBase64, size: 'medium' }]
             }
           };
@@ -233,10 +232,13 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
         enviarEmail,
         enviarGDrive,
         emailDestino: emailDestino, 
-        pastaDestinoUrl: config.gdriveFormsFolderUrl
+        // ATUALIZAÇÃO: Enviamos os dois links para o Apps Script
+        configuracoes: {
+          gdriveFormsFolderUrl: config.gdriveFormsFolderUrl,
+          gdrivePhotosFolderUrl: config.gdrivePhotosFolderUrl
+        }
       };
 
-      // --- ATENÇÃO: COLE A SUA URL AQUI ---
       const endpoint = 'https://script.google.com/macros/s/AKfycbyr9wA3Vp7Es0-LWn68oVrhhSLRHsrZ_7k9CF8JAJAeYVBvGxCb276SagUUAeygPpCwpQ/exec';
 
       const res = await fetch(endpoint, {
@@ -402,7 +404,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                     <div key={fIdx} className="relative aspect-square border border-slate-200 rounded overflow-hidden group">
                       <img src={foto.url} alt={foto.name} className="w-full h-full object-cover" />
                       
-                      {/* Botão de Alternância de Tamanho (MÉDIO / GRANDE) */}
                       <button
                         type="button"
                         onClick={() => togglePhotoSize(q.id, fIdx)}
@@ -411,7 +412,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                         {foto.size === 'large' ? 'GRANDE' : 'MÉDIO'}
                       </button>
 
-                      {/* Botão de Excluir */}
                       <button
                         type="button"
                         onClick={() => removePhoto(q.id, fIdx)}
@@ -422,7 +422,6 @@ export default function InspecaoFormulario({ user, config, onSaved }: InspecaoFo
                     </div>
                   ))}
 
-                  {/* Input de anexo flexível (sem limite) */}
                   <label className="aspect-square border border-dashed border-slate-200 rounded-lg hover:border-slate-400 flex flex-col items-center justify-center cursor-pointer transition-colors p-2 text-center group">
                     <Plus className="w-5 h-5 text-slate-400 group-hover:text-slate-650 mb-1" />
                     <span className="text-[10px] text-slate-400 font-bold group-hover:text-slate-650">ANEXAR FOTO</span>
