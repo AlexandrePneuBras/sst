@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // Mantemos a logo apenas para a versão de celular (mobile)
-import LogoPneubras from '../PneuBras.png;
+import LogoPneubras from '../PneuBras.png';
 // Importação do seu plano de fundo
 import FundoInicial from '../lidia.jpg';
 
